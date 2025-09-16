@@ -8,6 +8,7 @@ import {
   ReportsPage,
   SubscribePage,
 } from "./pages";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           <Route path="/call-page/:id" element={<CallPage/>}/>
         </Routes>
       </main>
+      <Toaster position="top-right" reverseOrder={false} />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { MdPeopleAlt } from "react-icons/md";
+import toast from "react-hot-toast";
 import { BtnTrash, CardWrapper, DataImportBox, InfoCard } from "../components";
 import {
   Backup,
@@ -8,11 +8,42 @@ import {
   LoadInterestedSelection,
   Restore,
 } from "../../wailsjs/go/main/App";
-import { CiImport,CiExport } from "react-icons/ci";
+import { CiImport, CiExport } from "react-icons/ci";
 import { BsFillTrashFill } from "react-icons/bs";
-
+import { useState } from "react";
+import { wailsCall } from "../lib/wailsCall";
 
 const HomePage = () => {
+  const [loadingApproved, setLoadingApproved] = useState(false);
+  const [loadingInterested, setLoadingInterested] = useState(false);
+  const [feedback, setFeedback] = useState<string | null>(null);
+
+  const handleImportApproved = async () => {
+    setLoadingApproved(true);
+    setFeedback(null);
+    try {
+      const res = await wailsCall(LoadApprovedSelection);
+      toast.success(res.msg || "Aprovados importados com sucesso!");
+    } catch (e: any) {
+      toast.error(e?.message || "Falha ao importar aprovados.");
+    } finally {
+      setLoadingApproved(false);
+    }
+  };
+
+  const handleImportInterested = async () => {
+    setLoadingInterested(true);
+    setFeedback(null);
+    try {
+      const res = await wailsCall(LoadInterestedSelection);
+      toast.success(res.msg || "Inscritos importados com sucesso.");
+    } catch (e: any) {
+      toast.error(e?.message || "Falha ao importar inscritos.");
+    } finally {
+      setLoadingInterested(false);
+    }
+  };
+
   return (
     <section className="px-4 w-full  h-[calc(100vh-82px)] overflow-auto lg:rounded-tl-3xl">
       <h1 className="text-3xl font-bold border-b-2 border-black py-4">
@@ -24,16 +55,16 @@ const HomePage = () => {
       />
       <div className=" flex gap-4">
         <DataImportBox
-          actionfunction={LoadApprovedSelection}
+          actionfunction={handleImportApproved}
           dataType="aprovados"
-          text="Aprovados"
-          mockHasData={false}
+          text={loadingApproved ? "Importando aprovados..." : "Aprovados"}
+          mockHasData={loadingApproved}
         />
         <DataImportBox
-          actionfunction={LoadInterestedSelection}
+          actionfunction={handleImportInterested}
           dataType="inscritos"
-          text="Em Espera"
-          mockHasData={false}
+          text={loadingInterested ? "Importando Em Espera..." : "Em Espera"}
+          mockHasData={loadingInterested}
         />
       </div>
       <InfoCard
@@ -45,152 +76,7 @@ const HomePage = () => {
         }
         type="warning"
       />
-      <div className=" flex gap-4">
-        {/* <CardWrapper>
-          <div className="flex gap-2">
-            <span className="bg-gray-300 p-1 rounded-full text-white ">
-              <MdPeopleAlt className="text-2xl" />
-            </span>
-            <h4 className="text-lg font-bold">Ampla concorrência</h4>
-          </div>
-          <div className="flex mt-4  gap-2 ">
-            <div
-              // disabled={mockHasData}
-              className=" py-1 gap-5 disabled:bg-gray-400  text-black font-bold  px-4  inline-flex items-center  disabled:text-gray-200"
-            >
-              20 - vagas
-            </div>
-          </div>
-        </CardWrapper>
-        <CardWrapper>
-          <div className="flex gap-2">
-            <span className="bg-gray-300 p-1 rounded-full text-white ">
-              <MdPeopleAlt className="text-2xl" />
-            </span>
-            <h4 className="text-lg font-bold">L1</h4>
-          </div>
-          <div className="flex mt-4  gap-2 ">
-            <div
-              // disabled={mockHasData}
-              className=" py-1 gap-5 disabled:bg-gray-400  text-black font-bold  px-4  inline-flex items-center  disabled:text-gray-200"
-            >
-              20 - vagas
-            </div>
-          </div>
-        </CardWrapper>
-        <CardWrapper>
-          <div className="flex gap-2">
-            <span className="bg-gray-300 p-1 rounded-full text-white ">
-              <MdPeopleAlt className="text-2xl" />
-            </span>
-            <h4 className="text-lg font-bold">L2</h4>
-          </div>
-          <div className="flex mt-4  gap-2 ">
-            <div
-              // disabled={mockHasData}
-              className=" py-1 gap-5 disabled:bg-gray-400  text-black font-bold  px-4  inline-flex items-center  disabled:text-gray-200"
-            >
-              20 - vagas
-            </div>
-          </div>
-        </CardWrapper>
-        <CardWrapper>
-          <div className="flex gap-2">
-            <span className="bg-gray-300 p-1 rounded-full text-white ">
-              <MdPeopleAlt className="text-2xl" />
-            </span>
-            <h4 className="text-lg font-bold">L5</h4>
-          </div>
-          <div className="flex mt-4  gap-2 ">
-            <div
-              // disabled={mockHasData}
-              className=" py-1 gap-5 disabled:bg-gray-400  text-black font-bold  px-4  inline-flex items-center  disabled:text-gray-200"
-            >
-              20 - vagas
-            </div>
-          </div>
-        </CardWrapper>
-        <CardWrapper>
-          <div className="flex gap-2">
-            <span className="bg-gray-300 p-1 rounded-full text-white ">
-              <MdPeopleAlt className="text-2xl" />
-            </span>
-            <h4 className="text-lg font-bold">L6</h4>
-          </div>
-          <div className="flex mt-4  gap-2 ">
-            <div
-              // disabled={mockHasData}
-              className=" py-1 gap-5 disabled:bg-gray-400  text-black font-bold  px-4  inline-flex items-center  disabled:text-gray-200"
-            >
-              20 - vagas
-            </div>
-          </div>
-        </CardWrapper>
-        <CardWrapper>
-          <div className="flex gap-2">
-            <span className="bg-gray-300 p-1 rounded-full text-white ">
-              <MdPeopleAlt className="text-2xl" />
-            </span>
-            <h4 className="text-lg font-bold">L9</h4>
-          </div>
-          <div className="flex mt-4  gap-2 ">
-            <div
-              // disabled={mockHasData}
-              className=" py-1 gap-5 disabled:bg-gray-400  text-black font-bold  px-4  inline-flex items-center  disabled:text-gray-200"
-            >
-              20 - vagas
-            </div>
-          </div>
-        </CardWrapper>
-        <CardWrapper>
-          <div className="flex gap-2">
-            <span className="bg-gray-300 p-1 rounded-full text-white ">
-              <MdPeopleAlt className="text-2xl" />
-            </span>
-            <h4 className="text-lg font-bold">L10</h4>
-          </div>
-          <div className="flex mt-4  gap-2 ">
-            <div
-              // disabled={mockHasData}
-              className=" py-1 gap-5 disabled:bg-gray-400  text-black font-bold  px-4  inline-flex items-center  disabled:text-gray-200"
-            >
-              20 - vagas
-            </div>
-          </div>
-        </CardWrapper>
-        <CardWrapper>
-          <div className="flex gap-2">
-            <span className="bg-gray-300 p-1 rounded-full text-white ">
-              <MdPeopleAlt className="text-2xl" />
-            </span>
-            <h4 className="text-lg font-bold">L13</h4>
-          </div>
-          <div className="flex mt-4  gap-2 ">
-            <div
-              // disabled={mockHasData}
-              className=" py-1 gap-5 disabled:bg-gray-400  text-black font-bold  px-4  inline-flex items-center  disabled:text-gray-200"
-            >
-              20 - vagas
-            </div>
-          </div>
-        </CardWrapper>
-        <CardWrapper>
-          <div className="flex gap-2">
-            <span className="bg-gray-300 p-1 rounded-full text-white ">
-              <MdPeopleAlt className="text-2xl" />
-            </span>
-            <h4 className="text-lg font-bold">L14</h4>
-          </div>
-          <div className="flex mt-4  gap-2 ">
-            <div
-              // disabled={mockHasData}
-              className=" py-1 gap-5 disabled:bg-gray-400  text-black font-bold  px-4  inline-flex items-center  disabled:text-gray-200"
-            >
-              20 - vagas
-            </div>
-          </div>
-        </CardWrapper> */}
-      </div>
+      <div className=" flex gap-4"></div>
       <InfoCard text={<>Banco de dados & CSV</>} type="info" />
       <div className=" flex gap-4">
         <CardWrapper>
@@ -242,7 +128,7 @@ const HomePage = () => {
           </div>
         </CardWrapper>
       </div>
-      
+
       <InfoCard
         text={
           <>

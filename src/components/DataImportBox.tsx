@@ -3,12 +3,13 @@ import { CiImport, CiExport } from "react-icons/ci";
 import { BsFillTrashFill } from "react-icons/bs";
 import CardWrapper from "./CardWrapper";
 
-interface IDataImportBox {
+type IDataImportBox = {
   dataType: "inscritos" | "aprovados";
   text: string;
-  mockHasData: boolean;
-  actionfunction: any;
-}
+  mockHasData: boolean;        
+  actionfunction: () => void;  
+};
+
 
 const DataImportBox = ({ dataType, text, mockHasData, actionfunction }: IDataImportBox) => {
   return (
@@ -27,12 +28,12 @@ const DataImportBox = ({ dataType, text, mockHasData, actionfunction }: IDataImp
           >
             <CiImport className="text-2xl" /> Importar
           </button>
-          <button
+          {/* <button
             disabled={!mockHasData}
             className="shadow-md  px-2  gap-5 disabled:bg-gray-400 bg-white cursor-pointer text-black font-bold   rounded-full inline-flex items-center disabled:shadow-none disabled:text-gray-200"
           >
             <BsFillTrashFill className="text-md" />
-          </button>
+          </button> */}
         </div>
     </CardWrapper>
   );
