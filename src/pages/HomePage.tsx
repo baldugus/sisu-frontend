@@ -12,11 +12,13 @@ import { CiImport, CiExport } from "react-icons/ci";
 import { BsFillTrashFill } from "react-icons/bs";
 import { useState } from "react";
 import { wailsCall } from "../lib/wailsCall";
+import ApprovedImportModal from "./components/ApprovedImportModal";
 
 const HomePage = () => {
   const [loadingApproved, setLoadingApproved] = useState(false);
   const [loadingInterested, setLoadingInterested] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [openApprovedModal, setOpenApprovedModal] = useState(false);
 
   const handleImportApproved = async () => {
     setLoadingApproved(true);
@@ -55,10 +57,10 @@ const HomePage = () => {
       />
       <div className=" flex gap-4">
         <DataImportBox
-          actionfunction={handleImportApproved}
+          actionfunction={() => setOpenApprovedModal(true)}
           dataType="aprovados"
-          text={loadingApproved ? "Importando aprovados..." : "Aprovados"}
-          mockHasData={loadingApproved}
+          text="Aprovados"
+          mockHasData={false}
         />
         <DataImportBox
           actionfunction={handleImportInterested}
@@ -158,6 +160,16 @@ const HomePage = () => {
       </div>
 
       {/* <InfoCard text="Não há dados disponíveis, retorne à página inicial e importe o .csv de aprovados." type="sad"/> */}
+      {openApprovedModal && (
+        <ApprovedImportModal
+          onClose={() => setOpenApprovedModal(false)}
+          onSuccess={(msg) => {
+            toast.success(msg || "Importado!");
+            setOpenApprovedModal(false);
+          }}
+          onError={(msg) => toast.error(msg || "Falha na importação.")}
+        />
+      )}
     </section>
   );
 };
