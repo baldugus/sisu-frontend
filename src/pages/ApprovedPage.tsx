@@ -1,13 +1,40 @@
-import { FetchApprovedSelection } from "../../wailsjs/go/main/App";
+import { FetchApprovedSelection, FetchRegistration, FetchRegistrationsBySelectionID } from "../../wailsjs/go/main/App";
 import { CallDataTable } from "../components";
 
 const ApprovedPage = () => {
   const handleGetData = async () => {
-    const response: any = FetchApprovedSelection();
+    const selectionRes = await FetchApprovedSelection();
+    if (!selectionRes.data) {
+      return [];
+    }
+    const registrationsRes = await FetchRegistrationsBySelectionID(selectionRes.data.ID);
+    const registrations = registrationsRes.data || [];
 
-    const { data } = await response;
-    const { Applications } = await data;
-    return await Applications;
+    const details = await Promise.all(
+      registrations.map((reg: any) => FetchRegistration(reg.ID))
+    );
+
+    return details.map((res: any) => {
+      const detail = res.data;
+      const reg = detail?.Registration;
+      const course = detail?.Course;
+      const candidate = reg?.Candidate;
+
+      let period = "";
+      if (course?.Period === "morning") period = "Matutino";
+      else if (course?.Period === "evening") period = "Noturno";
+
+      return {
+        ID: reg?.ID,
+        Name: candidate?.Name || "",
+        CPF: candidate?.CPF || "",
+        Period: period,
+        Quota: course?.Quota || "",
+        Status: reg?.Status?.toUpperCase() || "APPROVED",
+        EnrollmentID: reg?.EnrollmentID,
+        Ranking: reg?.Ranking,
+      };
+    });
   };
 
   return (

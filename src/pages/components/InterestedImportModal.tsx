@@ -1,7 +1,7 @@
-// frontend/src/pages/components/ApprovedImportModal.tsx
-import { useState } from "react";
+// frontend/src/pages/components/InterestedImportModal.tsx
+import { useState, useEffect } from "react";
 import { wailsCall } from "../../lib/wailsCall";
-import { LoadApprovedSelection, OpenFileDialog } from "../../../wailsjs/go/main/App";
+import { LoadInterestedSelection, OpenFileDialog, FetchApprovedSelection } from "../../../wailsjs/go/main/App";
 
 type Props = {
   onClose: () => void;
@@ -9,11 +9,24 @@ type Props = {
   onError: (msg?: string) => void;
 };
 
-const ApprovedImportModal = ({ onClose, onSuccess, onError }: Props) => {
-  const [year, setYear] = useState("");
-  const [period, setPeriod] = useState("");
+const InterestedImportModal = ({ onClose, onSuccess, onError }: Props) => {
   const [loading, setLoading] = useState(false);
   const [filePath, setFilePath] = useState("");
+  const [year, setYear] = useState<number | null>(null);
+  const [semester, setSemester] = useState<number | null>(null);
+
+  useEffect(() => {
+    // Fetch the approved selection to get year and semester
+    FetchApprovedSelection().then((res) => {
+      if (res.data) {
+        setYear(res.data.Year);
+        setSemester(res.data.Semester);
+      }
+    }).catch(() => {
+      onError("Não foi possível buscar a seleção de aprovados. Importe primeiro a lista de aprovados.");
+      onClose();
+    });
+  }, []);
 
   const handleSelectFile = async () => {
     try {
@@ -32,8 +45,8 @@ const ApprovedImportModal = ({ onClose, onSuccess, onError }: Props) => {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!year || !period) {
-      onError("Preencha Ano e Período.");
+    if (!year || !semester) {
+      onError("Não foi possível obter ano e período da seleção de aprovados.");
       return;
     }
     if (!filePath) {
@@ -43,7 +56,7 @@ const ApprovedImportModal = ({ onClose, onSuccess, onError }: Props) => {
 
     try {
       setLoading(true);
-      const res = await wailsCall(LoadApprovedSelection, parseInt(year), parseInt(period), filePath);
+      const res = await wailsCall(LoadInterestedSelection, year, semester, filePath);
       onSuccess(res.msg);
     } catch (err: any) {
       onError(err?.message || "Erro ao importar.");
@@ -64,33 +77,15 @@ const ApprovedImportModal = ({ onClose, onSuccess, onError }: Props) => {
         onSubmit={onSubmit}
         className="relative bg-white rounded-2xl shadow-xl p-6 w-full max-w-lg"
       >
-        <h3 className="text-xl font-bold mb-4">Importar Aprovados</h3>
+        <h3 className="text-xl font-bold mb-4">Importar Em Espera</h3>
 
-        <div className="grid grid-cols-2 gap-4">
-          <label className="flex flex-col gap-1">
-            <span className="text-sm font-medium">Ano</span>
-            <input
-              type="text"
-              inputMode="numeric"
-              placeholder="2024"
-              value={year}
-              onChange={(e) => setYear(e.target.value)}
-              className="border rounded-lg px-3 py-2"
-            />
-          </label>
-          <label className="flex flex-col gap-1">
-            <span className="text-sm font-medium">Período</span>
-            <input
-              type="text"
-              placeholder="1"
-              value={period}
-              onChange={(e) => setPeriod(e.target.value)}
-              className="border rounded-lg px-3 py-2"
-            />
-          </label>
+        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-blue-800">
+            Usando ano <strong>{year}</strong> e período <strong>{semester}</strong> da seleção de aprovados.
+          </p>
         </div>
 
-        <div className="flex flex-col gap-1 mt-4">
+        <div className="flex flex-col gap-1">
           <span className="text-sm font-medium">Arquivo CSV</span>
           <div className="flex gap-2">
             <button
@@ -117,8 +112,8 @@ const ApprovedImportModal = ({ onClose, onSuccess, onError }: Props) => {
           </button>
           <button
             type="submit"
-            disabled={loading}
-            className="px-4 py-2 rounded-lg bg-black text-white font-semibold"
+            disabled={loading || !year || !semester}
+            className="px-4 py-2 rounded-lg bg-black text-white font-semibold disabled:bg-gray-400"
           >
             {loading ? "Importando..." : "Importar"}
           </button>
@@ -128,4 +123,4 @@ const ApprovedImportModal = ({ onClose, onSuccess, onError }: Props) => {
   );
 };
 
-export default ApprovedImportModal;
+export default InterestedImportModal;

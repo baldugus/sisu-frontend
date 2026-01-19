@@ -1,14 +1,40 @@
 import { useParams } from "react-router-dom";
 import { CallDataTable } from "../components";
 import { Typography } from "@material-tailwind/react";
-import { FetchApplicationsByRollCall } from "../../wailsjs/go/main/App";
+import { FetchApplicationsByRollCall, FetchRegistration } from "../../wailsjs/go/main/App";
 
 const CallPage = () => {
   const { id } = useParams();
   const handleGetData = async () => {
-    const response: any = id && FetchApplicationsByRollCall(parseInt(id));
-    const { data } = await response;
-    return await data;
+    if (!id) return [];
+    const response = await FetchApplicationsByRollCall(parseInt(id));
+    const registrations = response.data || [];
+
+    const details = await Promise.all(
+      registrations.map((reg: any) => FetchRegistration(reg.ID))
+    );
+
+    return details.map((res: any) => {
+      const detail = res.data;
+      const reg = detail?.Registration;
+      const course = detail?.Course;
+      const candidate = reg?.Candidate;
+
+      let period = "";
+      if (course?.Period === "morning") period = "Matutino";
+      else if (course?.Period === "evening") period = "Noturno";
+
+      return {
+        ID: reg?.ID,
+        Name: candidate?.Name || "",
+        CPF: candidate?.CPF || "",
+        Period: period,
+        Quota: course?.Quota || "",
+        Status: reg?.Status?.toUpperCase() || "APPROVED",
+        EnrollmentID: reg?.EnrollmentID,
+        Ranking: reg?.Ranking,
+      };
+    });
   };
 
   return (

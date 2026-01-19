@@ -6,12 +6,13 @@ import CardWrapper from "./CardWrapper";
 type IDataImportBox = {
   dataType: "inscritos" | "aprovados";
   text: string;
-  mockHasData: boolean;        
-  actionfunction: () => void;  
+  hasData: boolean;
+  actionfunction: () => void;
+  onDelete?: () => void;
 };
 
 
-const DataImportBox = ({ dataType, text, mockHasData, actionfunction }: IDataImportBox) => {
+const DataImportBox = ({ dataType, text, hasData, actionfunction, onDelete }: IDataImportBox) => {
   return (
     <CardWrapper>
         <div className="flex gap-2">
@@ -22,18 +23,20 @@ const DataImportBox = ({ dataType, text, mockHasData, actionfunction }: IDataImp
         </div>
         <div className="flex mt-4  gap-2 ">
           <button
-            disabled={mockHasData}
+            disabled={hasData}
             onClick={actionfunction}
             className="shadow-md  py-1 gap-5 disabled:bg-gray-400 bg-white cursor-pointer text-black font-bold  px-4 rounded-full inline-flex items-center disabled:shadow-none disabled:text-gray-200"
           >
             <CiImport className="text-2xl" /> Importar
           </button>
-          {/* <button
-            disabled={!mockHasData}
-            className="shadow-md  px-2  gap-5 disabled:bg-gray-400 bg-white cursor-pointer text-black font-bold   rounded-full inline-flex items-center disabled:shadow-none disabled:text-gray-200"
-          >
-            <BsFillTrashFill className="text-md" />
-          </button> */}
+          {hasData && onDelete && (
+            <button
+              onClick={onDelete}
+              className="shadow-md  px-2  gap-5 bg-white cursor-pointer text-black font-bold rounded-full inline-flex items-center hover:bg-red-100"
+            >
+              <BsFillTrashFill className="text-md" />
+            </button>
+          )}
         </div>
     </CardWrapper>
   );

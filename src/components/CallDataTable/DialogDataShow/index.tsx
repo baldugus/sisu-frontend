@@ -1,32 +1,70 @@
 import {
-  Card,
-  CardHeader,
-  Input,
   Typography,
   Button,
-  CardBody,
-  Chip,
-  CardFooter,
-  Tabs,
-  TabsHeader,
-  Tab,
-  Avatar,
-  IconButton,
-  Tooltip,
   Dialog,
   DialogHeader,
   DialogBody,
   DialogFooter,
-  Select,
-  Option,
 } from "@material-tailwind/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   AbsentApplication,
   ClearApplicationStatus,
   EnrollApplication,
-  FetchApplicationsByRollCall,
+  FetchRegistration,
 } from "../../../../wailsjs/go/main/App";
+
+const flattenRegistrationDetail = (detail: any) => {
+  if (!detail) return {};
+
+  const flat: Record<string, any> = {};
+
+  if (detail.Registration) {
+    flat["ID"] = detail.Registration.ID;
+    flat["Inscrição ENEM"] = detail.Registration.EnrollmentID;
+    flat["Opção"] = detail.Registration.Option;
+    flat["Nota Linguagens"] = detail.Registration.LanguagesScore?.Value;
+    flat["Nota Humanas"] = detail.Registration.HumanitiesScore?.Value;
+    flat["Nota Natureza"] = detail.Registration.NaturalSciencesScore?.Value;
+    flat["Nota Matemática"] = detail.Registration.MathematicsScore?.Value;
+    flat["Nota Redação"] = detail.Registration.EssayScore?.Value;
+    flat["Nota Final"] = detail.Registration.CompositeScore?.Value;
+    flat["Classificação"] = detail.Registration.Ranking;
+    flat["Status"] = detail.Registration.Status?.toUpperCase();
+
+    if (detail.Registration.Candidate) {
+      const c = detail.Registration.Candidate;
+      flat["Nome"] = c.Name;
+      flat["Nome Social"] = c.SocialName;
+      flat["CPF"] = c.CPF;
+      flat["Data de Nascimento"] = c.BirthDate;
+      flat["Sexo"] = c.Sex;
+      flat["Nome da Mãe"] = c.MotherName;
+      flat["Endereço"] = c.AddressLine;
+      flat["Complemento"] = c.AddressLine2;
+      flat["Número"] = c.HouseNumber;
+      flat["Bairro"] = c.Neighborhood;
+      flat["Município"] = c.Municipality;
+      flat["Estado"] = c.State;
+      flat["CEP"] = c.CEP;
+      flat["Email"] = c.Email;
+      flat["Telefone 1"] = c.Phone1;
+      flat["Telefone 2"] = c.Phone2;
+    }
+  }
+
+  if (detail.Course) {
+    flat["Turno"] = detail.Course.Period === "morning" ? "Matutino" : "Noturno";
+    flat["Cota"] = detail.Course.Quota;
+    flat["Vagas"] = detail.Course.Seats;
+  }
+
+  if (detail.Call) {
+    flat["Chamada"] = detail.Call.Number;
+  }
+
+  return flat;
+};
 
 const DialogDataShow = ({
   open,
@@ -39,6 +77,22 @@ const DialogDataShow = ({
   handleGetData,
   hasSelector,
 }: any) => {
+  const [detailData, setDetailData] = useState<Record<string, any>>({});
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (open && filteredData[currentDataIdShow]?.ID) {
+      setLoading(true);
+      FetchRegistration(filteredData[currentDataIdShow].ID)
+        .then((res) => {
+          if (res.data) {
+            setDetailData(flattenRegistrationDetail(res.data));
+          }
+        })
+        .finally(() => setLoading(false));
+    }
+  }, [open, currentDataIdShow, filteredData]);
+
   const handleAlterStatus = () => {
     switch (dataCurrentStatus) {
       case "APPROVED":
@@ -50,13 +104,11 @@ const DialogDataShow = ({
         AbsentApplication(filteredData[currentDataIdShow].ID).then(() =>
           handleGetData().then((res: any) => setRowsTable(res))
         );
-
         break;
       case "ENROLLED":
         EnrollApplication(filteredData[currentDataIdShow].ID).then(() =>
           handleGetData().then((res: any) => setRowsTable(res))
         );
-
         break;
       default:
         alert("Nenhum status selecionado");
@@ -65,28 +117,25 @@ const DialogDataShow = ({
 
   return (
     <Dialog open={open} handler={handleOpen}>
-      {filteredData[currentDataIdShow] && (
-        <DialogHeader>{filteredData[currentDataIdShow].Name}</DialogHeader>
-      )}
-      {filteredData[currentDataIdShow] && (
-        <DialogBody className="h-[22rem] overflow-scroll">
-          {Object.entries(filteredData[currentDataIdShow]).map(
-            ([key, value]) => (
-              <div key={key} className="flex gap-2 border-b-2">
-                <Typography variant="small" className="font-normal">
-                  {key}:
-                </Typography>
-                <Typography variant="small">{value}</Typography>
-              </div>
-            )
-          )}
-        </DialogBody>
-      )}
+      <DialogHeader>{detailData["Nome"] || filteredData[currentDataIdShow]?.Name}</DialogHeader>
+      <DialogBody className="h-[22rem] overflow-scroll">
+        {loading ? (
+          <Typography>Carregando...</Typography>
+        ) : (
+          Object.entries(detailData).map(([key, value]) => (
+            <div key={key} className="flex gap-2 border-b-2">
+              <Typography variant="small" className="font-normal">
+                {key}:
+              </Typography>
+              <Typography variant="small">{value}</Typography>
+            </div>
+          ))
+        )}
+      </DialogBody>
       <DialogFooter className="space-x-2 flex flex-col justify-around">
         <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
           {hasSelector && "Alterar Status:"}
-          {filteredData[currentDataIdShow] &&
-            filteredData[currentDataIdShow].Status}
+          {detailData["Status"] || filteredData[currentDataIdShow]?.Status}
         </label>
         {hasSelector && filteredData[currentDataIdShow] && (
           <select
