@@ -38,14 +38,16 @@ const CallsPage = () => {
   });
   // -----------------------------FIM ALERTA-------------------------------
 
+  const transformCalls = (calls: any[]) => {
+    if (!calls) return [];
+    return calls.map((call: any) => ({
+      ...call,
+      Status: call.Status?.toUpperCase() || "CALLING",
+    }));
+  };
+
   useEffect(() => {
-    FetchRollCalls().then(
-      (res) =>
-        // setRowsTable(res.data.map((el: any) => el))
-        // setRowsTable(res.data)
-        setRowsCalls(res.data)
-      // setRowsTable(res)
-    );
+    FetchRollCalls().then((res) => setRowsCalls(transformCalls(res.data)));
   }, []);
 
   return (
@@ -96,13 +98,7 @@ const CallsPage = () => {
                         });
                         setOpen(true);
                       }
-                      FetchRollCalls().then(
-                        (res) =>
-                          // setRowsTable(res.data.map((el: any) => el))
-                          // setRowsTable(res.data)
-                          setRowsCalls(res.data)
-                        // setRowsTable(res)
-                      );
+                      FetchRollCalls().then((res) => setRowsCalls(transformCalls(res.data)));
                     })
                   }
                   className="w-48"
@@ -124,13 +120,7 @@ const CallsPage = () => {
                       setDialogContent({ color: "bg-green-400", msg: res.msg });
                       setOpen(true);
                     }
-                    FetchRollCalls().then(
-                      (res) =>
-                        // setRowsTable(res.data.map((el: any) => el))
-                        // setRowsTable(res.data)
-                        setRowsCalls(res.data)
-                      // setRowsTable(res)
-                    );
+                    FetchRollCalls().then((res) => setRowsCalls(transformCalls(res.data)));
                   })
                 }
               >
@@ -160,13 +150,7 @@ const CallsPage = () => {
                 setDialogContent({ color: "bg-green-400", msg: res.msg });
                 setOpen(true);
               }
-              FetchRollCalls().then(
-                (res) =>
-                  // setRowsTable(res.data.map((el: any) => el))
-                  // setRowsTable(res.data)
-                  setRowsCalls(res.data)
-                // setRowsTable(res)
-              );
+              FetchRollCalls().then((res) => setRowsCalls(transformCalls(res.data)));
             });
           }}
         >
@@ -187,13 +171,7 @@ const CallsPage = () => {
                   setDialogContent({ color: "bg-green-400", msg: res.msg });
                   setOpen(true);
                 }
-                FetchRollCalls().then(
-                  (res) =>
-                    // setRowsTable(res.data.map((el: any) => el))
-                    // setRowsTable(res.data)
-                    setRowsCalls(res.data)
-                  // setRowsTable(res)
-                );
+                FetchRollCalls().then((res) => setRowsCalls(transformCalls(res.data)));
               });
             }}
           >

@@ -2,23 +2,50 @@ import toast from "react-hot-toast";
 import { BtnTrash, CardWrapper, DataImportBox, InfoCard } from "../components";
 import {
   Backup,
+  DeleteApprovedSelection,
+  DeleteInterestedSelection,
   Destroy,
   ExportCSV,
+  FetchApprovedSelection,
+  FetchInterestedSelection,
   LoadApprovedSelection,
-  LoadInterestedSelection,
+  OpenFileDialog,
   Restore,
+  SaveFileDialog,
 } from "../../wailsjs/go/main/App";
 import { CiImport, CiExport } from "react-icons/ci";
 import { BsFillTrashFill } from "react-icons/bs";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { wailsCall } from "../lib/wailsCall";
 import ApprovedImportModal from "./components/ApprovedImportModal";
+import InterestedImportModal from "./components/InterestedImportModal";
 
 const HomePage = () => {
   const [loadingApproved, setLoadingApproved] = useState(false);
-  const [loadingInterested, setLoadingInterested] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [openApprovedModal, setOpenApprovedModal] = useState(false);
+  const [openInterestedModal, setOpenInterestedModal] = useState(false);
+  const [hasApprovedData, setHasApprovedData] = useState(false);
+  const [hasInterestedData, setHasInterestedData] = useState(false);
+
+  const checkDataExists = async () => {
+    try {
+      const approvedRes = await FetchApprovedSelection();
+      setHasApprovedData(approvedRes.data != null);
+    } catch {
+      setHasApprovedData(false);
+    }
+    try {
+      const interestedRes = await FetchInterestedSelection();
+      setHasInterestedData(interestedRes.data != null);
+    } catch {
+      setHasInterestedData(false);
+    }
+  };
+
+  useEffect(() => {
+    checkDataExists();
+  }, []);
 
   const handleImportApproved = async () => {
     setLoadingApproved(true);
@@ -33,16 +60,70 @@ const HomePage = () => {
     }
   };
 
-  const handleImportInterested = async () => {
-    setLoadingInterested(true);
-    setFeedback(null);
+  const handleDeleteApproved = async () => {
     try {
-      const res = await wailsCall(LoadInterestedSelection);
-      toast.success(res.msg || "Inscritos importados com sucesso.");
+      const res = await wailsCall(DeleteApprovedSelection);
+      toast.success(res.msg || "Aprovados removidos com sucesso.");
+      setHasApprovedData(false);
     } catch (e: any) {
-      toast.error(e?.message || "Falha ao importar inscritos.");
-    } finally {
-      setLoadingInterested(false);
+      toast.error(e?.message || "Falha ao remover aprovados.");
+    }
+  };
+
+  const handleDeleteInterested = async () => {
+    try {
+      const res = await wailsCall(DeleteInterestedSelection);
+      toast.success(res.msg || "Em espera removidos com sucesso.");
+      setHasInterestedData(false);
+    } catch (e: any) {
+      toast.error(e?.message || "Falha ao remover em espera.");
+    }
+  };
+
+  const handleRestore = async () => {
+    try {
+      const filePath = await OpenFileDialog(
+        "Selecionar backup",
+        "*.db;*.sqlite",
+        "Banco de dados (*.db, *.sqlite)"
+      );
+      if (!filePath) return;
+      const res = await wailsCall(Restore, filePath);
+      toast.success(res.msg || "Banco de dados restaurado com sucesso!");
+    } catch (e: any) {
+      toast.error(e?.message || "Falha ao restaurar banco de dados.");
+    }
+  };
+
+  const handleBackup = async () => {
+    try {
+      const filePath = await SaveFileDialog(
+        "Salvar backup",
+        "backup.db",
+        "*.db",
+        "Banco de dados (*.db)"
+      );
+      if (!filePath) return;
+      const res = await wailsCall(Backup, filePath);
+      toast.success(res.msg || "Backup realizado com sucesso!");
+    } catch (e: any) {
+      toast.error(e?.message || "Falha ao realizar backup.");
+    }
+  };
+
+  const handleExportCSV = async () => {
+    try {
+      const filePath = await SaveFileDialog(
+        "Exportar CSV",
+        "matriculados.csv",
+        "*.csv",
+        "CSV (*.csv)"
+      );
+      if (!filePath) return;
+      const res = await wailsCall(ExportCSV, filePath);
+      toast.success(res.msg || "CSV exportado com sucesso!");
+    } catch (e: any) {
+      toast.error(e?.message || "Falha ao exportar CSV.");
     }
   };
 
@@ -60,13 +141,15 @@ const HomePage = () => {
           actionfunction={() => setOpenApprovedModal(true)}
           dataType="aprovados"
           text="Aprovados"
-          mockHasData={false}
+          hasData={hasApprovedData}
+          onDelete={handleDeleteApproved}
         />
         <DataImportBox
-          actionfunction={handleImportInterested}
+          actionfunction={() => setOpenInterestedModal(true)}
           dataType="inscritos"
-          text={loadingInterested ? "Importando Em Espera..." : "Em Espera"}
-          mockHasData={loadingInterested}
+          text="Em Espera"
+          hasData={hasInterestedData}
+          onDelete={handleDeleteInterested}
         />
       </div>
       <InfoCard
@@ -90,7 +173,7 @@ const HomePage = () => {
           </div>
           <div className="flex mt-4  gap-2 ">
             <button
-              onClick={Restore}
+              onClick={handleRestore}
               className="shadow-md  py-1 gap-5 disabled:bg-gray-400 bg-white cursor-pointer text-black font-bold  px-4 rounded-full inline-flex items-center disabled:shadow-none disabled:text-gray-200"
             >
               <CiImport className="text-md" /> Importar
@@ -106,7 +189,7 @@ const HomePage = () => {
           </div>
           <div className="flex mt-4  gap-2 ">
             <button
-              onClick={Backup}
+              onClick={handleBackup}
               className="shadow-md  py-1 gap-5 disabled:bg-gray-400 bg-white cursor-pointer text-black font-bold  px-4 rounded-full inline-flex items-center disabled:shadow-none disabled:text-gray-200"
             >
               <CiExport className="text-md" /> Exportar
@@ -122,7 +205,7 @@ const HomePage = () => {
           </div>
           <div className="flex mt-4  gap-2 ">
             <button
-              onClick={ExportCSV}
+              onClick={handleExportCSV}
               className="shadow-md  py-1 gap-5 disabled:bg-gray-400 bg-white cursor-pointer text-black font-bold  px-4 rounded-full inline-flex items-center disabled:shadow-none disabled:text-gray-200"
             >
               <CiExport className="text-md" /> Exportar
@@ -150,7 +233,7 @@ const HomePage = () => {
           </div>
           <div className="flex mt-4  gap-2 ">
             <button
-              onClick={Destroy}
+              onClick={() => Destroy()}
               className="shadow-md  py-1 gap-5 disabled:bg-gray-400 bg-white cursor-pointer text-black font-bold  px-4 rounded-full inline-flex items-center disabled:shadow-none disabled:text-gray-200"
             >
               <BsFillTrashFill className="text-md" /> Destruir
@@ -166,6 +249,18 @@ const HomePage = () => {
           onSuccess={(msg) => {
             toast.success(msg || "Importado!");
             setOpenApprovedModal(false);
+            setHasApprovedData(true);
+          }}
+          onError={(msg) => toast.error(msg || "Falha na importação.")}
+        />
+      )}
+      {openInterestedModal && (
+        <InterestedImportModal
+          onClose={() => setOpenInterestedModal(false)}
+          onSuccess={(msg) => {
+            toast.success(msg || "Importado!");
+            setOpenInterestedModal(false);
+            setHasInterestedData(true);
           }}
           onError={(msg) => toast.error(msg || "Falha na importação.")}
         />

@@ -53,6 +53,10 @@ const TABS_2 = [
     label: "Matriculado(a)",
     value: "ENROLLED",
   },
+  {
+    label: "Em espera",
+    value: "WAITLISTED",
+  },
 ];
 const TABS_3 = [
   {
@@ -96,6 +100,10 @@ const status: any = {
   WAITING: {
     color: "bg-cyan-400",
     name: "Esperando...",
+  },
+  WAITLISTED: {
+    color: "bg-blue-400",
+    name: "Em espera",
   },
 };
 

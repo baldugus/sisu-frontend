@@ -4,9 +4,13 @@ import {main} from '../models';
 
 export function AbsentApplication(arg1:number):Promise<main.Response>;
 
-export function Backup():Promise<main.Response>;
+export function AbsentRegistration(arg1:number):Promise<main.Response>;
+
+export function Backup(arg1:string):Promise<main.Response>;
 
 export function ClearApplicationStatus(arg1:number):Promise<main.Response>;
+
+export function ClearRegistrationStatus(arg1:number):Promise<main.Response>;
 
 export function CloseRollCall(arg1:number):Promise<main.Response>;
 
@@ -14,19 +18,25 @@ export function CreateRollCall():Promise<main.Response>;
 
 export function DeleteApprovedSelection():Promise<main.Response>;
 
+export function DeleteCall(arg1:number):Promise<main.Response>;
+
 export function DeleteInterestedSelection():Promise<main.Response>;
+
+export function DeleteRollCall(arg1:number):Promise<main.Response>;
 
 export function DeleteRollcall(arg1:number):Promise<main.Response>;
 
 export function Destroy():Promise<main.Response>;
 
-export function EmailPDF(arg1:number,arg2:number):Promise<main.Response>;
+export function EmailPDF(arg1:number,arg2:string,arg3:string):Promise<main.Response>;
 
 export function EnrollApplication(arg1:number):Promise<main.Response>;
 
-export function EnrollmentPDF(arg1:number,arg2:number):Promise<main.Response>;
+export function EnrollRegistration(arg1:number):Promise<main.Response>;
 
-export function ExportCSV():Promise<main.Response>;
+export function EnrollmentPDF(arg1:number,arg2:string,arg3:string):Promise<main.Response>;
+
+export function ExportCSV(arg1:string):Promise<main.Response>;
 
 export function FetchApplicationsByRollCall(arg1:number):Promise<main.Response>;
 
@@ -34,18 +44,34 @@ export function FetchApprovedSelection():Promise<main.Response>;
 
 export function FetchInterestedSelection():Promise<main.Response>;
 
-export function FetchPeriods():Promise<main.Response>;
+export function FetchRegistration(arg1:number):Promise<main.Response>;
+
+export function FetchRegistrations():Promise<main.Response>;
+
+export function FetchRegistrationsByCallID(arg1:number):Promise<main.Response>;
+
+export function FetchRegistrationsByCourseID(arg1:number):Promise<main.Response>;
+
+export function FetchRegistrationsBySelectionID(arg1:number):Promise<main.Response>;
 
 export function FetchRollCalls():Promise<main.Response>;
 
-export function LoadApprovedSelection():Promise<main.Response>;
+export function LoadApprovedSelection(arg1:number,arg2:number,arg3:string):Promise<main.Response>;
 
-export function LoadInterestedSelection():Promise<main.Response>;
+export function LoadInterestedSelection(arg1:number,arg2:number,arg3:string):Promise<main.Response>;
+
+export function LoadWaitlistSelection(arg1:number,arg2:number,arg3:string):Promise<main.Response>;
+
+export function OpenCall(arg1:number):Promise<main.Response>;
+
+export function OpenFileDialog(arg1:string,arg2:string,arg3:string):Promise<string>;
 
 export function OpenRollCall(arg1:number):Promise<main.Response>;
 
-export function Restore():Promise<main.Response>;
+export function Restore(arg1:string):Promise<main.Response>;
 
-export function TeacherPDF(arg1:number):Promise<main.Response>;
+export function SaveFileDialog(arg1:string,arg2:string,arg3:string,arg4:string):Promise<string>;
 
-export function WebsitePDF(arg1:number,arg2:number):Promise<main.Response>;
+export function TeacherPDF(arg1:string,arg2:string):Promise<main.Response>;
+
+export function WebsitePDF(arg1:number,arg2:string,arg3:string):Promise<main.Response>;

@@ -6,12 +6,20 @@ export function AbsentApplication(arg1) {
   return window['go']['main']['App']['AbsentApplication'](arg1);
 }
 
-export function Backup() {
-  return window['go']['main']['App']['Backup']();
+export function AbsentRegistration(arg1) {
+  return window['go']['main']['App']['AbsentRegistration'](arg1);
+}
+
+export function Backup(arg1) {
+  return window['go']['main']['App']['Backup'](arg1);
 }
 
 export function ClearApplicationStatus(arg1) {
   return window['go']['main']['App']['ClearApplicationStatus'](arg1);
+}
+
+export function ClearRegistrationStatus(arg1) {
+  return window['go']['main']['App']['ClearRegistrationStatus'](arg1);
 }
 
 export function CloseRollCall(arg1) {
@@ -26,8 +34,16 @@ export function DeleteApprovedSelection() {
   return window['go']['main']['App']['DeleteApprovedSelection']();
 }
 
+export function DeleteCall(arg1) {
+  return window['go']['main']['App']['DeleteCall'](arg1);
+}
+
 export function DeleteInterestedSelection() {
   return window['go']['main']['App']['DeleteInterestedSelection']();
+}
+
+export function DeleteRollCall(arg1) {
+  return window['go']['main']['App']['DeleteRollCall'](arg1);
 }
 
 export function DeleteRollcall(arg1) {
@@ -38,20 +54,24 @@ export function Destroy() {
   return window['go']['main']['App']['Destroy']();
 }
 
-export function EmailPDF(arg1, arg2) {
-  return window['go']['main']['App']['EmailPDF'](arg1, arg2);
+export function EmailPDF(arg1, arg2, arg3) {
+  return window['go']['main']['App']['EmailPDF'](arg1, arg2, arg3);
 }
 
 export function EnrollApplication(arg1) {
   return window['go']['main']['App']['EnrollApplication'](arg1);
 }
 
-export function EnrollmentPDF(arg1, arg2) {
-  return window['go']['main']['App']['EnrollmentPDF'](arg1, arg2);
+export function EnrollRegistration(arg1) {
+  return window['go']['main']['App']['EnrollRegistration'](arg1);
 }
 
-export function ExportCSV() {
-  return window['go']['main']['App']['ExportCSV']();
+export function EnrollmentPDF(arg1, arg2, arg3) {
+  return window['go']['main']['App']['EnrollmentPDF'](arg1, arg2, arg3);
+}
+
+export function ExportCSV(arg1) {
+  return window['go']['main']['App']['ExportCSV'](arg1);
 }
 
 export function FetchApplicationsByRollCall(arg1) {
@@ -66,34 +86,66 @@ export function FetchInterestedSelection() {
   return window['go']['main']['App']['FetchInterestedSelection']();
 }
 
-export function FetchPeriods() {
-  return window['go']['main']['App']['FetchPeriods']();
+export function FetchRegistration(arg1) {
+  return window['go']['main']['App']['FetchRegistration'](arg1);
+}
+
+export function FetchRegistrations() {
+  return window['go']['main']['App']['FetchRegistrations']();
+}
+
+export function FetchRegistrationsByCallID(arg1) {
+  return window['go']['main']['App']['FetchRegistrationsByCallID'](arg1);
+}
+
+export function FetchRegistrationsByCourseID(arg1) {
+  return window['go']['main']['App']['FetchRegistrationsByCourseID'](arg1);
+}
+
+export function FetchRegistrationsBySelectionID(arg1) {
+  return window['go']['main']['App']['FetchRegistrationsBySelectionID'](arg1);
 }
 
 export function FetchRollCalls() {
   return window['go']['main']['App']['FetchRollCalls']();
 }
 
-export function LoadApprovedSelection() {
-  return window['go']['main']['App']['LoadApprovedSelection']();
+export function LoadApprovedSelection(arg1, arg2, arg3) {
+  return window['go']['main']['App']['LoadApprovedSelection'](arg1, arg2, arg3);
 }
 
-export function LoadInterestedSelection() {
-  return window['go']['main']['App']['LoadInterestedSelection']();
+export function LoadInterestedSelection(arg1, arg2, arg3) {
+  return window['go']['main']['App']['LoadInterestedSelection'](arg1, arg2, arg3);
+}
+
+export function LoadWaitlistSelection(arg1, arg2, arg3) {
+  return window['go']['main']['App']['LoadWaitlistSelection'](arg1, arg2, arg3);
+}
+
+export function OpenCall(arg1) {
+  return window['go']['main']['App']['OpenCall'](arg1);
+}
+
+export function OpenFileDialog(arg1, arg2, arg3) {
+  return window['go']['main']['App']['OpenFileDialog'](arg1, arg2, arg3);
 }
 
 export function OpenRollCall(arg1) {
   return window['go']['main']['App']['OpenRollCall'](arg1);
 }
 
-export function Restore() {
-  return window['go']['main']['App']['Restore']();
+export function Restore(arg1) {
+  return window['go']['main']['App']['Restore'](arg1);
 }
 
-export function TeacherPDF(arg1) {
-  return window['go']['main']['App']['TeacherPDF'](arg1);
+export function SaveFileDialog(arg1, arg2, arg3, arg4) {
+  return window['go']['main']['App']['SaveFileDialog'](arg1, arg2, arg3, arg4);
 }
 
-export function WebsitePDF(arg1, arg2) {
-  return window['go']['main']['App']['WebsitePDF'](arg1, arg2);
+export function TeacherPDF(arg1, arg2) {
+  return window['go']['main']['App']['TeacherPDF'](arg1, arg2);
+}
+
+export function WebsitePDF(arg1, arg2, arg3) {
+  return window['go']['main']['App']['WebsitePDF'](arg1, arg2, arg3);
 }
