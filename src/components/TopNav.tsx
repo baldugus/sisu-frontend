@@ -28,11 +28,11 @@ const TopNav = () => {
             <Link to="/data-management" className={getLinkClass("/data-management")}>
               <BsDatabaseFillGear className="h-4 w-4" /> Dados
             </Link>
-            <Link to="/subscribe-page" className={getLinkClass("/subscribe-page")}>
-              <MdPeopleAlt className="h-4 w-4" /> Em espera
-            </Link>
             <Link to="/approved-page" className={getLinkClass("/approved-page")}>
               <BsPersonFillCheck className="h-4 w-4" /> Aprovados
+            </Link>
+            <Link to="/subscribe-page" className={getLinkClass("/subscribe-page")}>
+              <MdPeopleAlt className="h-4 w-4" /> Em espera
             </Link>
             <Link to="/calls-page" className={getLinkClass("/calls-page")}>
               <GiBugleCall className="h-4 w-4" /> Chamadas
