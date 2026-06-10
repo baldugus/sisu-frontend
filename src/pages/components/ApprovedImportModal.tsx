@@ -11,7 +11,6 @@ type Props = {
 
 const ApprovedImportModal = ({ onClose, onSuccess, onError }: Props) => {
   const [year, setYear] = useState("");
-  const [period, setPeriod] = useState("");
   const [loading, setLoading] = useState(false);
   const [filePath, setFilePath] = useState("");
 
@@ -32,8 +31,8 @@ const ApprovedImportModal = ({ onClose, onSuccess, onError }: Props) => {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!year || !period) {
-      onError("Preencha Ano e Período.");
+    if (!year) {
+      onError("Preencha o Ano.");
       return;
     }
     if (!filePath) {
@@ -43,7 +42,7 @@ const ApprovedImportModal = ({ onClose, onSuccess, onError }: Props) => {
 
     try {
       setLoading(true);
-      const res = await wailsCall(LoadApprovedSelection, parseInt(year), parseInt(period), filePath);
+      const res = await wailsCall(LoadApprovedSelection, parseInt(year), filePath);
       onSuccess(res.msg);
     } catch (err: any) {
       onError(err?.message || "Erro ao importar.");
@@ -66,29 +65,17 @@ const ApprovedImportModal = ({ onClose, onSuccess, onError }: Props) => {
       >
         <h3 className="text-xl font-bold mb-4">Importar Aprovados</h3>
 
-        <div className="grid grid-cols-2 gap-4">
-          <label className="flex flex-col gap-1">
-            <span className="text-sm font-medium">Ano</span>
-            <input
-              type="text"
-              inputMode="numeric"
-              placeholder="2024"
-              value={year}
-              onChange={(e) => setYear(e.target.value)}
-              className="border rounded-lg px-3 py-2"
-            />
-          </label>
-          <label className="flex flex-col gap-1">
-            <span className="text-sm font-medium">Período</span>
-            <input
-              type="text"
-              placeholder="1"
-              value={period}
-              onChange={(e) => setPeriod(e.target.value)}
-              className="border rounded-lg px-3 py-2"
-            />
-          </label>
-        </div>
+        <label className="flex flex-col gap-1">
+          <span className="text-sm font-medium">Ano</span>
+          <input
+            type="text"
+            inputMode="numeric"
+            placeholder="2024"
+            value={year}
+            onChange={(e) => setYear(e.target.value)}
+            className="border rounded-lg px-3 py-2"
+          />
+        </label>
 
         <div className="flex flex-col gap-1 mt-4">
           <span className="text-sm font-medium">Arquivo CSV</span>

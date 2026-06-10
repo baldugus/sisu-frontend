@@ -29,41 +29,39 @@ interface ICalls {
 const ReportsPage = () => {
   const [rowsCalls, setRowsCalls] = useState<Array<ICalls>>();
   const [year, setYear] = useState<number>(0);
-  const [semester, setSemester] = useState<number>(0);
 
   useEffect(() => {
     FetchRollCalls().then((res) => setRowsCalls(res.data));
     FetchApprovedSelection().then((res) => {
       if (res.data) {
         setYear(res.data.Year);
-        setSemester(res.data.Semester);
       }
     });
   }, []);
 
   const handleExportWebsite = async (callId: number, period: string, callNumber: number, periodLabel: string) => {
-    const filename = `website-${periodLabel.toLowerCase()}-chamada-${callNumber}-${year}-${semester}.pdf`;
+    const filename = `website-${periodLabel.toLowerCase()}-chamada-${callNumber}-${year}.pdf`;
     const filePath = await SaveFileDialog("Salvar PDF Website", filename, "*.pdf", "PDF Files");
     if (filePath) {
       WebsitePDF(callId, period, filePath);
     }
   };
   const handleEnrollmentPDF = async (callId: number, period: string, callNumber: number, periodLabel: string) => {
-    const filename = `convocados-${periodLabel.toLowerCase()}-chamada-${callNumber}-${year}-${semester}.pdf`;
+    const filename = `convocados-${periodLabel.toLowerCase()}-chamada-${callNumber}-${year}.pdf`;
     const filePath = await SaveFileDialog("Salvar PDF Convocados", filename, "*.pdf", "PDF Files");
     if (filePath) {
       EnrollmentPDF(callId, period, filePath);
     }
   };
   const handleTeacherPDF = async (period: string, periodLabel: string) => {
-    const filename = `professor-${periodLabel.toLowerCase()}-${year}-${semester}.pdf`;
+    const filename = `professor-${periodLabel.toLowerCase()}-${year}.pdf`;
     const filePath = await SaveFileDialog("Salvar PDF Professor", filename, "*.pdf", "PDF Files");
     if (filePath) {
       TeacherPDF(period, filePath);
     }
   };
   const handleEmailPDF = async (callId: number, period: string, callNumber: number, periodLabel: string) => {
-    const filename = `emails-${periodLabel.toLowerCase()}-chamada-${callNumber}-${year}-${semester}.pdf`;
+    const filename = `emails-${periodLabel.toLowerCase()}-chamada-${callNumber}-${year}.pdf`;
     const filePath = await SaveFileDialog("Salvar PDF Emails", filename, "*.pdf", "PDF Files");
     if (filePath) {
       EmailPDF(callId, period, filePath);

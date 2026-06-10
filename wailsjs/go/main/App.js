@@ -26,8 +26,8 @@ export function CloseRollCall(arg1) {
   return window['go']['main']['App']['CloseRollCall'](arg1);
 }
 
-export function CreateRollCall() {
-  return window['go']['main']['App']['CreateRollCall']();
+export function CreateRollCall(arg1) {
+  return window['go']['main']['App']['CreateRollCall'](arg1);
 }
 
 export function DeleteApprovedSelection() {
@@ -110,16 +110,20 @@ export function FetchRollCalls() {
   return window['go']['main']['App']['FetchRollCalls']();
 }
 
-export function LoadApprovedSelection(arg1, arg2, arg3) {
-  return window['go']['main']['App']['LoadApprovedSelection'](arg1, arg2, arg3);
+export function FetchSemesters() {
+  return window['go']['main']['App']['FetchSemesters']();
 }
 
-export function LoadInterestedSelection(arg1, arg2, arg3) {
-  return window['go']['main']['App']['LoadInterestedSelection'](arg1, arg2, arg3);
+export function LoadApprovedSelection(arg1, arg2) {
+  return window['go']['main']['App']['LoadApprovedSelection'](arg1, arg2);
 }
 
-export function LoadWaitlistSelection(arg1, arg2, arg3) {
-  return window['go']['main']['App']['LoadWaitlistSelection'](arg1, arg2, arg3);
+export function LoadInterestedSelection(arg1, arg2) {
+  return window['go']['main']['App']['LoadInterestedSelection'](arg1, arg2);
+}
+
+export function LoadWaitlistSelection(arg1, arg2) {
+  return window['go']['main']['App']['LoadWaitlistSelection'](arg1, arg2);
 }
 
 export function OpenCall(arg1) {

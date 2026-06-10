@@ -5,6 +5,7 @@ import {
   CloseRollCall,
   CreateRollCall,
   FetchRollCalls,
+  FetchSemesters,
   OpenRollCall,
   DeleteRollcall,
 } from "../../wailsjs/go/main/App";
@@ -30,6 +31,8 @@ const status: any = {
 
 const CallsPage = () => {
   const [rowsCalls, setRowsCalls] = useState<any>([]);
+  const [semesters, setSemesters] = useState<any[]>([]);
+  const [selectedSemesterID, setSelectedSemesterID] = useState<number | null>(null);
   // -----------------------------INICIO ALERTA-------------------------------
   const [open, setOpen] = useState(false);
   const [dialogContent, setDialogContent] = useState({
@@ -46,19 +49,51 @@ const CallsPage = () => {
     }));
   };
 
-  useEffect(() => {
+  const refreshCalls = () =>
     FetchRollCalls().then((res) => setRowsCalls(transformCalls(res.data)));
+
+  useEffect(() => {
+    FetchSemesters().then((res) => {
+      const list: any[] = res.data || [];
+      setSemesters(list);
+      if (list.length > 0) {
+        setSelectedSemesterID(list[0].ID);
+      }
+    });
+    refreshCalls();
   }, []);
+
+  const filteredCalls = rowsCalls.filter(
+    (c: any) => c.SemesterID === selectedSemesterID
+  );
+
+  const selectedSemester = semesters.find((s) => s.ID === selectedSemesterID);
 
   return (
     <section className="px-4 w-full  h-[calc(100vh-82px)] overflow-auto lg:rounded-tl-3xl">
-      
+
       <h1 className="text-3xl font-bold border-b-2 border-black py-4">
         Chamadas
       </h1>
 
-      {rowsCalls &&
-        rowsCalls.map((el: any) => (
+      {/* Semester selector */}
+      {semesters.length > 0 && (
+        <div className="flex gap-2 mt-4 mb-2">
+          {semesters.map((s: any) => (
+            <Button
+              key={s.ID}
+              variant={selectedSemesterID === s.ID ? "filled" : "outlined"}
+              onClick={() => setSelectedSemesterID(s.ID)}
+              className="w-28"
+            >
+              {s.Number}º Semestre
+            </Button>
+          ))}
+        </div>
+      )}
+
+      {filteredCalls.length > 0 &&
+        filteredCalls.map((el: any) => (
           <div className="flex gap-4 items-center" key={el.ID}>
             <Link to={`/call-page/${el.ID}`} className="w-full">
               <div
@@ -98,7 +133,7 @@ const CallsPage = () => {
                         });
                         setOpen(true);
                       }
-                      FetchRollCalls().then((res) => setRowsCalls(transformCalls(res.data)));
+                      refreshCalls();
                     })
                   }
                   className="w-48"
@@ -120,7 +155,7 @@ const CallsPage = () => {
                       setDialogContent({ color: "bg-green-400", msg: res.msg });
                       setOpen(true);
                     }
-                    FetchRollCalls().then((res) => setRowsCalls(transformCalls(res.data)));
+                    refreshCalls();
                   })
                 }
               >
@@ -129,20 +164,27 @@ const CallsPage = () => {
             </div>
           </div>
         ))}
-      {!rowsCalls && (
+      {filteredCalls.length === 0 && semesters.length === 0 && (
         <InfoCard
           text="Não há dados disponíveis, retorne à página inicial e importe o(s) .csv(s) de inscritos e/ou aprovados."
           type="sad"
         />
       )}
+      {filteredCalls.length === 0 && semesters.length > 0 && (
+        <p className="text-gray-500 mt-4">
+          Nenhuma chamada para o {selectedSemester?.Number}º semestre.
+        </p>
+      )}
 
       {/* --------------------------------ALERTA------------------------------------------------ */}
-      <div className="flex gap-2">
+      <div className="flex gap-2 mt-4">
         <Button
           variant="gradient"
           className="w-48 flex gap-4 items-center"
+          disabled={!selectedSemesterID}
           onClick={() => {
-            CreateRollCall().then((res) => {
+            if (!selectedSemesterID) return;
+            CreateRollCall(selectedSemesterID).then((res) => {
               if (res.status != 200) {
                 setDialogContent({ color: "bg-red-400", msg: res.msg });
                 setOpen(true);
@@ -150,20 +192,21 @@ const CallsPage = () => {
                 setDialogContent({ color: "bg-green-400", msg: res.msg });
                 setOpen(true);
               }
-              FetchRollCalls().then((res) => setRowsCalls(transformCalls(res.data)));
+              refreshCalls();
             });
           }}
         >
           <AiFillPlusCircle /> Abrir Nova Chamada
         </Button>
 
-        {rowsCalls.length > 1 && (
+        {filteredCalls.length > 1 && (
           <Button
             color="red"
             variant="gradient"
             className="w-48 flex gap-4 items-center "
             onClick={() => {
-              DeleteRollcall(rowsCalls[rowsCalls.length - 1].ID).then((res) => {
+              const lastCall = filteredCalls[filteredCalls.length - 1];
+              DeleteRollcall(lastCall.ID).then((res) => {
                 if (res.status != 200) {
                   setDialogContent({ color: "bg-red-400", msg: res.msg });
                   setOpen(true);
@@ -171,13 +214,13 @@ const CallsPage = () => {
                   setDialogContent({ color: "bg-green-400", msg: res.msg });
                   setOpen(true);
                 }
-                FetchRollCalls().then((res) => setRowsCalls(transformCalls(res.data)));
+                refreshCalls();
               });
             }}
           >
             <BsFillTrashFill /> Deletar{" "}
-            {rowsCalls[rowsCalls.length - 1] &&
-              rowsCalls[rowsCalls.length - 1].ID}
+            {filteredCalls[filteredCalls.length - 1] &&
+              filteredCalls[filteredCalls.length - 1].Number}
             ª Chamada
           </Button>
         )}

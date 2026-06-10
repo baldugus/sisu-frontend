@@ -14,7 +14,7 @@ export function ClearRegistrationStatus(arg1:number):Promise<main.Response>;
 
 export function CloseRollCall(arg1:number):Promise<main.Response>;
 
-export function CreateRollCall():Promise<main.Response>;
+export function CreateRollCall(arg1:number):Promise<main.Response>;
 
 export function DeleteApprovedSelection():Promise<main.Response>;
 
@@ -56,11 +56,13 @@ export function FetchRegistrationsBySelectionID(arg1:number):Promise<main.Respon
 
 export function FetchRollCalls():Promise<main.Response>;
 
-export function LoadApprovedSelection(arg1:number,arg2:number,arg3:string):Promise<main.Response>;
+export function FetchSemesters():Promise<main.Response>;
 
-export function LoadInterestedSelection(arg1:number,arg2:number,arg3:string):Promise<main.Response>;
+export function LoadApprovedSelection(arg1:number,arg2:string):Promise<main.Response>;
 
-export function LoadWaitlistSelection(arg1:number,arg2:number,arg3:string):Promise<main.Response>;
+export function LoadInterestedSelection(arg1:number,arg2:string):Promise<main.Response>;
+
+export function LoadWaitlistSelection(arg1:number,arg2:string):Promise<main.Response>;
 
 export function OpenCall(arg1:number):Promise<main.Response>;
 
