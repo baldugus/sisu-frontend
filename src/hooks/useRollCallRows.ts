@@ -3,7 +3,7 @@ import type { RowData } from '@/components/RosterTable';
 import {
   FetchApplicationsByRollCall,
   FetchRegistration,
-} from '../../wailsjs/go/main/App';
+} from '@/lib/backend';
 
 function periodLabel(p: string) {
   if (p === 'morning') return 'Matutino';

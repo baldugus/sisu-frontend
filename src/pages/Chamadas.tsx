@@ -10,7 +10,7 @@ import {
   OpenRollCall,
   CloseRollCall,
   DeleteRollcall,
-} from '../../wailsjs/go/main/App';
+} from '@/lib/backend';
 
 interface RollCall {
   ID: number;
@@ -128,7 +128,7 @@ export default function Chamadas() {
 
   useEffect(() => { load(); }, [load]);
 
-  async function act(fn: () => Promise<any>, successMsg: string) {
+  async function act(fn: (...args: any[]) => Promise<any>, successMsg: string) {
     setBusy(true);
     try {
       await fn();

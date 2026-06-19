@@ -5,7 +5,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { FetchApprovedSelection } from '../../../wailsjs/go/main/App';
+import { FetchApprovedSelection } from '@/lib/backend';
 
 interface SelectionInfo {
   year: number;

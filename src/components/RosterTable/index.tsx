@@ -17,7 +17,7 @@ import {
   ClearApplicationStatus,
   AbsentApplication,
   EnrollApplication,
-} from '../../../wailsjs/go/main/App';
+} from '@/lib/backend';
 
 export interface RowData {
   ID: number;

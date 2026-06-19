@@ -8,7 +8,7 @@ import {
   FetchInterestedSelection,
   FetchRegistrationsBySelectionID,
   FetchRollCalls,
-} from '../../wailsjs/go/main/App';
+} from '@/lib/backend';
 
 interface SelectionInfo {
   year: number;

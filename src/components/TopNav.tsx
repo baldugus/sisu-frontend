@@ -1,10 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { AiFillHome } from "react-icons/ai";
-import { MdPeopleAlt } from "react-icons/md";
-import { BsPersonFillCheck, BsDatabaseFillGear } from "react-icons/bs";
-import { GiBugleCall } from "react-icons/gi";
-import { BiSolidReport } from "react-icons/bi";
-import { IoIosHelpCircle } from "react-icons/io";
+import { Home, Users, UserCheck, Database, PhoneCall, BarChart3, HelpCircle } from "lucide-react";
 
 const TopNav = () => {
   const location = useLocation();
@@ -23,28 +18,28 @@ const TopNav = () => {
           </Link>
           <nav className="flex items-center space-x-6 text-sm font-medium">
             <Link to="/" className={getLinkClass("/")}>
-              <AiFillHome className="h-4 w-4" /> Início
+              <Home className="h-4 w-4" /> Início
             </Link>
             <Link to="/data-management" className={getLinkClass("/data-management")}>
-              <BsDatabaseFillGear className="h-4 w-4" /> Dados
+              <Database className="h-4 w-4" /> Dados
             </Link>
             <Link to="/approved-page" className={getLinkClass("/approved-page")}>
-              <BsPersonFillCheck className="h-4 w-4" /> Aprovados
+              <UserCheck className="h-4 w-4" /> Aprovados
             </Link>
             <Link to="/subscribe-page" className={getLinkClass("/subscribe-page")}>
-              <MdPeopleAlt className="h-4 w-4" /> Em espera
+              <Users className="h-4 w-4" /> Em espera
             </Link>
             <Link to="/calls-page" className={getLinkClass("/calls-page")}>
-              <GiBugleCall className="h-4 w-4" /> Chamadas
+              <PhoneCall className="h-4 w-4" /> Chamadas
             </Link>
             <Link to="/reports-page" className={getLinkClass("/reports-page")}>
-              <BiSolidReport className="h-4 w-4" /> Relatórios
+              <BarChart3 className="h-4 w-4" /> Relatórios
             </Link>
           </nav>
         </div>
         <div className="flex flex-1 items-center justify-end space-x-2">
           <button className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 w-9">
-            <IoIosHelpCircle className="h-5 w-5" />
+            <HelpCircle className="h-5 w-5" />
             <span className="sr-only">Ajuda</span>
           </button>
         </div>

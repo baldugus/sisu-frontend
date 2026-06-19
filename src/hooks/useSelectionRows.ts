@@ -5,7 +5,7 @@ import {
   FetchInterestedSelection,
   FetchRegistrationsBySelectionID,
   FetchRegistration,
-} from '../../wailsjs/go/main/App';
+} from '@/lib/backend';
 
 function periodLabel(p: string) {
   if (p === 'morning') return 'Matutino';

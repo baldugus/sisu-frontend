@@ -1,4 +1,4 @@
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import { useState, useEffect } from "react";
 import {
   Backup,
@@ -11,7 +11,7 @@ import {
   OpenFileDialog,
   Restore,
   SaveFileDialog,
-} from "../../wailsjs/go/main/App";
+} from "@/lib/backend";
 import { wailsCall } from "../lib/wailsCall";
 import ApprovedImportModal from "./components/ApprovedImportModal";
 import InterestedImportModal from "./components/InterestedImportModal";
@@ -324,23 +324,23 @@ const DataManagementPage = () => {
       {openApprovedModal && (
         <ApprovedImportModal
           onClose={() => setOpenApprovedModal(false)}
-          onSuccess={(msg) => {
+          onSuccess={(msg: string) => {
             toast.success(msg || "Importado!");
             setOpenApprovedModal(false);
             setHasApprovedData(true);
           }}
-          onError={(msg) => toast.error(msg || "Falha na importação.")}
+          onError={(msg: string) => toast.error(msg || "Falha na importação.")}
         />
       )}
       {openInterestedModal && (
         <InterestedImportModal
           onClose={() => setOpenInterestedModal(false)}
-          onSuccess={(msg) => {
+          onSuccess={(msg: string) => {
             toast.success(msg || "Importado!");
             setOpenInterestedModal(false);
             setHasInterestedData(true);
           }}
-          onError={(msg) => toast.error(msg || "Falha na importação.")}
+          onError={(msg: string) => toast.error(msg || "Falha na importação.")}
         />
       )}
     </div>

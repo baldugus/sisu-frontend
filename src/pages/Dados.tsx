@@ -37,7 +37,7 @@ import {
   Backup,
   Restore,
   Destroy,
-} from '../../wailsjs/go/main/App';
+} from '@/lib/backend';
 
 interface SelectionInfo { year: number; semester: number }
 
@@ -137,8 +137,8 @@ function ImportModal({ type, open, onClose, approvedInfo, onSuccess }: ImportMod
     try {
       const y = Number(resolvedYear);
       const s = Number(resolvedSemester);
-      if (isWaitlisted) await LoadInterestedSelection(y, s, filePath);
-      else await LoadApprovedSelection(y, s, filePath);
+      if (isWaitlisted) await LoadInterestedSelection(y, filePath);
+      else await LoadApprovedSelection(y, filePath);
       toast.success('Dados importados com sucesso.');
       onSuccess();
       onClose();

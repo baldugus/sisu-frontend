@@ -12,7 +12,7 @@ import {
   EmailPDF,
   TeacherPDF,
   ExportCSV,
-} from '../../wailsjs/go/main/App';
+} from '@/lib/backend';
 
 interface RollCall { ID: number; Number: number; Status: string }
 interface SelectionInfo { year: number; semester: number }

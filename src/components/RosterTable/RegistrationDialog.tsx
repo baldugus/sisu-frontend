@@ -22,7 +22,7 @@ import {
   ClearApplicationStatus,
   AbsentApplication,
   EnrollApplication,
-} from '../../../wailsjs/go/main/App';
+} from '@/lib/backend';
 
 interface RegistrationDialogProps {
   open: boolean;
