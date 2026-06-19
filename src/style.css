@@ -1,81 +1,169 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* ── Fonts ──────────────────────────────────────────────────────────── */
+@import "@fontsource-variable/archivo";
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/geist-mono";
+
+/* ── Dark-mode: class-based only. No toggle UI exists; utilities stay inert. ─ */
+@custom-variant dark (&:is(.dark *));
+
+/* ── Design token mapping → Tailwind utilities ──────────────────────── */
+@theme inline {
+  /* Type */
+  --font-heading: 'Archivo Variable', sans-serif;
+  --font-sans:    'Inter Variable', sans-serif;
+  --font-mono:    'Geist Mono Variable', ui-monospace, monospace;
+
+  /* Semantic color tokens */
+  --color-background:         var(--background);
+  --color-foreground:         var(--foreground);
+  --color-card:               var(--card);
+  --color-card-foreground:    var(--card-foreground);
+  --color-popover:            var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary:            var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary:          var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted:              var(--muted);
+  --color-muted-foreground:   var(--muted-foreground);
+  --color-accent:             var(--accent);
+  --color-accent-foreground:  var(--accent-foreground);
+  --color-destructive:        var(--destructive);
+  --color-border:             var(--border);
+  --color-input:              var(--input);
+  --color-ring:               var(--ring);
+
+  /* Sidebar tokens */
+  --color-sidebar:                    var(--sidebar);
+  --color-sidebar-foreground:         var(--sidebar-foreground);
+  --color-sidebar-primary:            var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent:             var(--sidebar-accent);
+  --color-sidebar-accent-foreground:  var(--sidebar-accent-foreground);
+  --color-sidebar-border:             var(--sidebar-border);
+  --color-sidebar-ring:               var(--sidebar-ring);
+
+  /* Status colors — each used as bg/text via Tailwind arbitrary or custom utility */
+  --color-status-approved:   var(--status-approved);
+  --color-status-absent:     var(--status-absent);
+  --color-status-enrolled:   var(--status-enrolled);
+  --color-status-waitlisted: var(--status-waitlisted);
+  --color-status-waiting:    var(--status-waiting);
+
+  /* Radius scale */
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.6);
 }
 
+/* ── Root palette: ink/paper/stamp ──────────────────────────────────── */
+:root {
+  /* Brand primitives */
+  --ink:          #15131C;
+  --paper:        #FFFFFF;
+  --panel:        #F6F5F8;
+  --stamp:        #3D2EAA;
+  --stamp-bright: #6B5BFF;
+
+  /* Status dot/badge palette (functional, must stay visually distinct from --stamp) */
+  --status-approved:   #E0A100;
+  --status-absent:     #D64545;
+  --status-enrolled:   #2F9E6B;
+  --status-waitlisted: #3B82C4;
+  --status-waiting:    #3FB6C4;
+
+  /* Semantic surface tokens */
+  --background:         var(--paper);
+  --foreground:         var(--ink);
+  --card:               var(--paper);
+  --card-foreground:    var(--ink);
+  --popover:            var(--paper);
+  --popover-foreground: var(--ink);
+
+  /* Primary = stamp-indigo (actions, active state) */
+  --primary:            var(--stamp);
+  --primary-foreground: #FFFFFF;
+
+  /* Secondary = panel (quiet backgrounds) */
+  --secondary:            var(--panel);
+  --secondary-foreground: var(--ink);
+
+  /* Muted */
+  --muted:            var(--panel);
+  --muted-foreground: #6B6875;
+
+  /* Accent = very light stamp tint for hover surfaces */
+  --accent:            #EDEAFB;
+  --accent-foreground: var(--stamp);
+
+  /* Destructive = faltoso red */
+  --destructive: var(--status-absent);
+
+  /* Chrome */
+  --border: #E4E2E8;
+  --input:  #E4E2E8;
+  --ring:   var(--stamp-bright);
+  --radius: 0.625rem;
+
+  /* Sidebar: ink-colored (black/near-black) panel */
+  --sidebar:                    var(--ink);
+  --sidebar-foreground:         #FFFFFF;
+  --sidebar-primary:            var(--stamp-bright);
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent:             #221F2C;
+  --sidebar-accent-foreground:  #FFFFFF;
+  --sidebar-border:             #2A2733;
+  --sidebar-ring:               var(--stamp-bright);
+}
+
+/* ── Base layer ─────────────────────────────────────────────────────── */
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+
+  /* All number/code data is set in mono by the data-mono attribute or .font-mono class */
+  [data-mono], .font-mono {
+    font-family: var(--font-mono);
+    font-feature-settings: 'tnum' 1;  /* tabular numbers */
+  }
+}
+
+/* ── Reduced-motion: disable all animations if OS requests ──────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── Row entrance animation (opt-out via prefers-reduced-motion above) ─ */
 .fade-in {
-  animation: fadeIn ease 1.5s;
+  animation: fadeIn 0.3s ease both;
 }
 
 @keyframes fadeIn {
-  0% {
+  from {
     opacity: 0;
-    transform: scale(0.95);
+    transform: translateY(4px);
   }
-  100% {
+  to {
     opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 5.9% 10%;
-    --radius: 0.5rem;
-  }
-
-  .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    transform: translateY(0);
   }
 }

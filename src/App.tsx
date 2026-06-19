@@ -1,37 +1,43 @@
-import { Route, Routes } from "react-router-dom";
-import TopNav from "./components/TopNav";
-import {
-  ApprovedPage,
-  CallPage,
-  CallsPage,
-  DataManagementPage,
-  ReportsPage,
-  SubscribePage,
-  DashboardPage,
-} from "./pages";
-import { Toaster } from "react-hot-toast";
+import { Route, Routes } from 'react-router-dom';
+import { Toaster } from '@/components/ui/sonner';
+import { TooltipProvider } from '@/components/ui/tooltip';
+import { Sidebar, ContextBar } from '@/components/layout';
+import { lazy, Suspense } from 'react';
+
+const Painel     = lazy(() => import('@/pages/Painel'));
+const Candidatos = lazy(() => import('@/pages/Candidatos'));
+const Chamadas   = lazy(() => import('@/pages/Chamadas'));
+const Chamada    = lazy(() => import('@/pages/Chamada'));
+const Relatorios = lazy(() => import('@/pages/Relatorios'));
+const Dados      = lazy(() => import('@/pages/Dados'));
 
 function App() {
   return (
-    <div className="bg-background min-h-screen flex flex-col font-sans">
-      <TopNav />
-      <main className="flex-1 flex overflow-hidden">
-        <div className="flex-1 overflow-y-auto">
-          <Routes>
-            <Route path="/" element={<DashboardPage />} />
-            <Route path="/data-management" element={<DataManagementPage />} />
-            <Route path="/subscribe-page" element={<SubscribePage />} />
-            <Route path="/approved-page" element={<ApprovedPage />} />
-            <Route path="/reports-page" element={<ReportsPage />} />
-            <Route path="/calls-page" element={<CallsPage />} />
-            <Route path="/call-page/:id" element={<CallPage/>}/>
-          </Routes>
+    <TooltipProvider delayDuration={400}>
+      <div className="flex h-screen bg-background overflow-hidden">
+        <Sidebar />
+
+        <div className="flex flex-col flex-1 min-w-0">
+          <ContextBar />
+
+          <main className="flex-1 overflow-auto">
+            <Suspense fallback={null}>
+              <Routes>
+                <Route path="/"               element={<Painel />} />
+                <Route path="/candidatos"     element={<Candidatos />} />
+                <Route path="/chamadas"       element={<Chamadas />} />
+                <Route path="/chamadas/:id"   element={<Chamada />} />
+                <Route path="/relatorios"     element={<Relatorios />} />
+                <Route path="/dados"          element={<Dados />} />
+              </Routes>
+            </Suspense>
+          </main>
         </div>
-      </main>
-      <Toaster position="top-right" reverseOrder={false} />
-    </div>
+      </div>
+
+      <Toaster position="top-right" richColors closeButton />
+    </TooltipProvider>
   );
 }
 
 export default App;
-
