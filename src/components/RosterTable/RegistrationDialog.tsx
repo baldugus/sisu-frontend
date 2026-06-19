@@ -43,6 +43,49 @@ function Field({ label, value, mono }: { label: string; value?: any; mono?: bool
   );
 }
 
+function ScoreBox({
+  label,
+  value,
+  emphasis,
+  className,
+}: {
+  label: string;
+  value?: any;
+  emphasis?: boolean;
+  className?: string;
+}) {
+  if (value == null || value === '') return null;
+  return (
+    <div
+      className={cn(
+        'rounded-lg border p-2.5 flex flex-col gap-0.5',
+        emphasis ? 'border-primary bg-accent/50' : 'border-border bg-card',
+        className
+      )}
+    >
+      <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">
+        {label}
+      </span>
+      <span
+        className={cn(
+          'font-mono font-bold tabular-nums text-base text-foreground',
+          emphasis && 'text-primary'
+        )}
+      >
+        {value}
+      </span>
+    </div>
+  );
+}
+
+const SCORE_FIELDS: { key: string; label: string }[] = [
+  { key: 'Nota Linguagens', label: 'Linguagens' },
+  { key: 'Nota Humanas', label: 'Humanas' },
+  { key: 'Nota Natureza', label: 'Natureza' },
+  { key: 'Nota Matemática', label: 'Matemática' },
+  { key: 'Nota Redação', label: 'Redação' },
+];
+
 const MUTABLE_STATUSES = STATUSES.filter(
   (s) => s.value === 'APPROVED' || s.value === 'ABSENT' || s.value === 'ENROLLED'
 );
@@ -120,6 +163,8 @@ export function RegistrationDialog({
   }
 
   const statusDef = getStatus(pendingStatus);
+  const enemSepIndex = Object.keys(detail).indexOf('_sep_ENEM');
+  const personalFieldCount = enemSepIndex === -1 ? Object.keys(detail).length : enemSepIndex;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -144,16 +189,27 @@ export function RegistrationDialog({
               </p>
               {Object.entries(detail)
                 .filter(([k]) => !k.startsWith('_sep_'))
-                .slice(0, Object.keys(detail).findIndex(([k]) => k === '_sep_ENEM') || 999)
+                .slice(0, personalFieldCount)
                 .map(([k, v]) => <Field key={k} label={k} value={v} mono={k === 'CPF' || k === 'CEP'} />)}
 
               <Separator className="my-3" />
               <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold mb-1">
                 ENEM / Notas
               </p>
-              {['Inscrição ENEM', 'Opção', 'Classificação', 'Nota Linguagens', 'Nota Humanas', 'Nota Natureza', 'Nota Matemática', 'Nota Redação', 'Nota Final'].map((k) =>
+              {['Inscrição ENEM', 'Opção', 'Classificação'].map((k) =>
                 detail[k] != null ? <Field key={k} label={k} value={detail[k]} mono /> : null
               )}
+              <div className="grid grid-cols-3 gap-2 mt-2">
+                {SCORE_FIELDS.map(({ key, label }) => (
+                  <ScoreBox key={key} label={label} value={detail[key]} />
+                ))}
+                <ScoreBox
+                  label="Nota Final"
+                  value={detail['Nota Final']}
+                  emphasis
+                  className="col-span-3"
+                />
+              </div>
 
               <Separator className="my-3" />
               <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold mb-1">

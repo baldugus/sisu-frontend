@@ -14,6 +14,7 @@ interface SelectionInfo {
   year: number;
   totalApproved: number;
   totalWaitlisted: number;
+  totalEnrolled: number;
 }
 
 interface RollCall {
@@ -27,11 +28,13 @@ function StatCard({
   value,
   sub,
   accent,
+  progress,
 }: {
   label: string;
   value: string | number;
   sub?: string;
   accent?: boolean;
+  progress?: number;
 }) {
   return (
     <div
@@ -50,6 +53,14 @@ function StatCard({
         <span className={cn('text-xs', accent ? 'text-primary-foreground/70' : 'text-muted-foreground')}>
           {sub}
         </span>
+      )}
+      {progress != null && (
+        <div className="h-1.5 rounded-full bg-muted overflow-hidden mt-1">
+          <div
+            className="h-full bg-primary"
+            style={{ width: `${Math.min(Math.max(progress, 0), 100)}%` }}
+          />
+        </div>
       )}
     </div>
   );
@@ -124,10 +135,14 @@ export default function Painel() {
             FetchRegistrationsBySelectionID(approved.ID),
             waitlisted ? FetchRegistrationsBySelectionID(waitlisted.ID) : Promise.resolve([]),
           ]);
+          const enrolled = (approvedRegs ?? []).filter(
+            (r) => r.Status?.toUpperCase?.() === 'ENROLLED'
+          ).length;
           setInfo({
             year: approved.Year,
             totalApproved: approvedRegs?.length ?? 0,
             totalWaitlisted: waitlistRegs?.length ?? 0,
+            totalEnrolled: enrolled,
           });
         }
 
@@ -187,13 +202,23 @@ export default function Painel() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard label="Convocados" value={info.totalApproved} sub="aprovados no SISU" accent />
         <StatCard label="Em espera" value={info.totalWaitlisted} sub="candidatos em espera" />
         <StatCard
           label="Chamadas"
           value={calls.length}
           sub={activeCall ? `${activeCall.Number}ª chamada aberta` : 'nenhuma chamada aberta'}
+        />
+        <StatCard
+          label="Vagas preenchidas"
+          value={`${info.totalEnrolled} / ${info.totalApproved}`}
+          sub={
+            info.totalApproved
+              ? `${((info.totalEnrolled / info.totalApproved) * 100).toFixed(1)}% das vagas`
+              : 'sem vagas'
+          }
+          progress={info.totalApproved ? (info.totalEnrolled / info.totalApproved) * 100 : 0}
         />
       </div>
 

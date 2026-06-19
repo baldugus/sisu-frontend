@@ -80,11 +80,27 @@ const PERIOD_OPTIONS = [
 
 const QUOTA_OPTIONS = [
   { label: 'Todas as cotas', value: '' },
-  { label: 'AC', value: 'AC' },
-  { label: 'C1', value: 'C1' },
-  { label: 'C2', value: 'C2' },
-  { label: 'C3', value: 'C3' },
+  { label: 'AC', value: 'Ampla concorrência' },
+  {
+    label: 'C1',
+    value:
+      'Candidatos Negros ou Indígenas com comprovação de carência socioeconômica',
+  },
+  {
+    label: 'C2',
+    value:
+      'Candidatos com deficiência ou filhos de policiais militares, bombeiros militares, inspetores de segurança e administração penitenciária, mortos ou incapacitados em razão do serviço, com comprovação de carência socioeconômica',
+  },
+  {
+    label: 'C3',
+    value:
+      'Candidatos que tenham cursado na rede pública os últimos quatro anos do ensino fundamental e todo o ensino médio e com comprovação de carência socioeconômica',
+  },
 ];
+
+const QUOTA_LABEL: Record<string, string> = Object.fromEntries(
+  QUOTA_OPTIONS.slice(1).map((o) => [o.value, o.label])
+);
 
 const STATUS_OPTIONS = [
   { label: 'Todos os status', value: '' },
@@ -338,7 +354,9 @@ export function RosterTable({
                     <td className="px-2 py-2.5 font-mono text-xs text-muted-foreground">{row.CPF}</td>
                     <td className="px-2 py-2.5 text-sm text-muted-foreground">{row.Period}</td>
                     <td className="px-2 py-2.5">
-                      <span className="font-mono text-xs font-bold text-foreground">{row.Quota}</span>
+                      <span className="font-mono text-xs font-bold text-foreground">
+                        {QUOTA_LABEL[row.Quota] ?? row.Quota}
+                      </span>
                     </td>
                     <td className="px-2 py-2.5">
                       <span
