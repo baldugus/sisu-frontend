@@ -9,7 +9,6 @@ import { FetchApprovedSelection } from '@/lib/backend';
 
 interface SelectionInfo {
   year: number;
-  semester: number;
 }
 
 export function ContextBar() {
@@ -17,9 +16,9 @@ export function ContextBar() {
 
   useEffect(() => {
     FetchApprovedSelection()
-      .then((res) => {
-        if (res?.data) {
-          setSelection({ year: res.data.Year, semester: res.data.Semester });
+      .then((sel) => {
+        if (sel) {
+          setSelection({ year: sel.Year });
         }
       })
       .catch(() => {});
@@ -38,14 +37,8 @@ export function ContextBar() {
         {selection ? (
           <>
             <CalendarDays className="size-4" />
-            <span>
-              <span className="font-medium text-foreground font-mono">
-                {selection.year}
-              </span>
-              {' · '}
-              <span className="font-medium text-foreground font-mono">
-                {selection.semester}º semestre
-              </span>
+            <span className="font-medium text-foreground font-mono">
+              {selection.year}
             </span>
           </>
         ) : (

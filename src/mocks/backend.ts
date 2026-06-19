@@ -1,44 +1,39 @@
 /**
  * Mock implementations of every Wails-bound method.
- * Read methods return fixture data; mutations return a no-op success response.
+ * Read methods return fixture data; mutations are no-ops.
  * State does NOT change between calls (read-only fixtures).
  */
-import { main } from "../../wailsjs/go/models";
+import { types } from "../../wailsjs/go/models";
 import * as f from "./fixtures";
 
-const ok = (data: unknown): main.Response =>
-  main.Response.createFrom({ status: 200, msg: "", data });
+// ── Mutations (no-op) ────────────────────────────────────────────────────────
 
-const noop = (): main.Response => ok(null);
-
-// ── Mutations (no-op success) ────────────────────────────────────────────────
-
-export const AbsentApplication = async (_: number): Promise<main.Response> => noop();
-export const AbsentRegistration = async (_: number): Promise<main.Response> => noop();
-export const Backup = async (_: string): Promise<main.Response> => noop();
-export const ClearApplicationStatus = async (_: number): Promise<main.Response> => noop();
-export const ClearRegistrationStatus = async (_: number): Promise<main.Response> => noop();
-export const CloseRollCall = async (_: number): Promise<main.Response> => noop();
-export const CreateRollCall = async (_: number): Promise<main.Response> => noop();
-export const DeleteApprovedSelection = async (): Promise<main.Response> => noop();
-export const DeleteCall = async (_: number): Promise<main.Response> => noop();
-export const DeleteInterestedSelection = async (): Promise<main.Response> => noop();
-export const DeleteRollCall = async (_: number): Promise<main.Response> => noop();
-export const DeleteRollcall = async (_: number): Promise<main.Response> => noop();
-export const Destroy = async (): Promise<main.Response> => noop();
-export const EmailPDF = async (_1: number, _2: string, _3: string): Promise<main.Response> => noop();
-export const EnrollApplication = async (_: number): Promise<main.Response> => noop();
-export const EnrollRegistration = async (_: number): Promise<main.Response> => noop();
-export const EnrollmentPDF = async (_1: number, _2: string, _3: string): Promise<main.Response> => noop();
-export const ExportCSV = async (_: string): Promise<main.Response> => noop();
-export const LoadApprovedSelection = async (_1: number, _2: string): Promise<main.Response> => noop();
-export const LoadInterestedSelection = async (_1: number, _2: string): Promise<main.Response> => noop();
-export const LoadWaitlistSelection = async (_1: number, _2: string): Promise<main.Response> => noop();
-export const OpenCall = async (_: number): Promise<main.Response> => noop();
-export const OpenRollCall = async (_: number): Promise<main.Response> => noop();
-export const Restore = async (_: string): Promise<main.Response> => noop();
-export const TeacherPDF = async (_1: string, _2: string): Promise<main.Response> => noop();
-export const WebsitePDF = async (_1: number, _2: string, _3: string): Promise<main.Response> => noop();
+export const AbsentApplication = async (_: number): Promise<void> => {};
+export const AbsentRegistration = async (_: number): Promise<void> => {};
+export const Backup = async (_: string): Promise<void> => {};
+export const ClearApplicationStatus = async (_: number): Promise<void> => {};
+export const ClearRegistrationStatus = async (_: number): Promise<void> => {};
+export const CloseRollCall = async (_: number): Promise<void> => {};
+export const CreateRollCall = async (_: number): Promise<void> => {};
+export const DeleteApprovedSelection = async (): Promise<void> => {};
+export const DeleteCall = async (_: number): Promise<void> => {};
+export const DeleteInterestedSelection = async (): Promise<void> => {};
+export const DeleteRollCall = async (_: number): Promise<void> => {};
+export const DeleteRollcall = async (_: number): Promise<void> => {};
+export const Destroy = async (): Promise<void> => {};
+export const EmailPDF = async (_1: number, _2: string, _3: string): Promise<void> => {};
+export const EnrollApplication = async (_: number): Promise<void> => {};
+export const EnrollRegistration = async (_: number): Promise<void> => {};
+export const EnrollmentPDF = async (_1: number, _2: string, _3: string): Promise<void> => {};
+export const ExportCSV = async (_: string): Promise<void> => {};
+export const LoadApprovedSelection = async (_1: number, _2: string): Promise<void> => {};
+export const LoadInterestedSelection = async (_1: number, _2: string): Promise<void> => {};
+export const LoadWaitlistSelection = async (_1: number, _2: string): Promise<void> => {};
+export const OpenCall = async (_: number): Promise<void> => {};
+export const OpenRollCall = async (_: number): Promise<void> => {};
+export const Restore = async (_: string): Promise<void> => {};
+export const TeacherPDF = async (_1: string, _2: string): Promise<void> => {};
+export const WebsitePDF = async (_1: number, _2: string, _3: string): Promise<void> => {};
 
 // ── File dialogs (stub paths) ────────────────────────────────────────────────
 
@@ -50,36 +45,29 @@ export const SaveFileDialog = async (_1: string, _2: string, _3: string, _4: str
 
 // ── Read methods (fixture data) ──────────────────────────────────────────────
 
-export const FetchApprovedSelection = async (): Promise<main.Response> =>
-  ok(f.approvedSelection);
+const registrations = () => f.mockRegistrations.map((r) => types.Registration.createFrom(r));
 
-export const FetchInterestedSelection = async (): Promise<main.Response> =>
-  ok(f.waitlistSelection);
+export const FetchApprovedSelection = async () => types.Selection.createFrom(f.approvedSelection);
 
-export const FetchRollCalls = async (): Promise<main.Response> =>
-  ok(f.mockCalls);
+export const FetchInterestedSelection = async () => types.Selection.createFrom(f.waitlistSelection);
 
-export const FetchSemesters = async (): Promise<main.Response> =>
-  ok(f.mockSemesters);
+export const FetchRollCalls = async () => f.mockCalls.map((c) => types.Call.createFrom(c));
 
-export const FetchRegistrations = async (): Promise<main.Response> =>
-  ok(f.mockRegistrations);
+export const FetchSemesters = async () => f.mockSemesters.map((s) => types.Semester.createFrom(s));
 
-export const FetchRegistrationsBySelectionID = async (_: number): Promise<main.Response> =>
-  ok(f.mockRegistrations);
+export const FetchRegistrations = async () => registrations();
 
-export const FetchRegistrationsByCallID = async (_: number): Promise<main.Response> =>
-  ok(f.mockRegistrations);
+export const FetchRegistrationsBySelectionID = async (_: number) => registrations();
 
-export const FetchRegistrationsByCourseID = async (_: number): Promise<main.Response> =>
-  ok(f.mockRegistrations);
+export const FetchRegistrationsByCallID = async (_: number) => registrations();
 
-export const FetchApplicationsByRollCall = async (_: number): Promise<main.Response> =>
-  ok(f.mockRegistrations);
+export const FetchRegistrationsByCourseID = async (_: number) => registrations();
 
-export const FetchRegistration = async (id: number): Promise<main.Response> => {
+export const FetchApplicationsByRollCall = async (_: number) => registrations();
+
+export const FetchRegistration = async (id: number) => {
   const detail =
     f.mockRegistrationDetails.find((d) => d.Registration.ID === id) ??
     f.mockRegistrationDetails[0];
-  return ok(detail);
+  return types.RegistrationDetail.createFrom(detail);
 };

@@ -65,42 +65,41 @@ export function RegistrationDialog({
     setPendingStatus(initialStatus);
     setLoading(true);
     FetchRegistration(id)
-      .then((res) => {
-        if (!res?.data) return;
-        const d = res.data;
+      .then((d) => {
+        if (!d) return;
         const reg = d.Registration;
-        const c = reg?.Candidate ?? {};
-        const course = d.Course ?? {};
+        const c = reg?.Candidate;
+        const course = d.Course;
         const call = d.Call;
 
         setDetail({
-          Nome: c.Name,
-          'Nome Social': c.SocialName,
-          CPF: c.CPF,
-          'Data de Nascimento': c.BirthDate,
-          Sexo: c.Sex,
-          'Nome da Mãe': c.MotherName,
-          Endereço: [c.AddressLine, c.AddressLine2, c.HouseNumber].filter(Boolean).join(', '),
-          Bairro: c.Neighborhood,
-          'Município / UF': c.Municipality && c.State ? `${c.Municipality} — ${c.State}` : c.Municipality,
-          CEP: c.CEP,
-          Email: c.Email,
-          'Telefone 1': c.Phone1,
-          'Telefone 2': c.Phone2,
+          Nome: c?.Name,
+          'Nome Social': c?.SocialName,
+          CPF: c?.CPF,
+          'Data de Nascimento': c?.BirthDate,
+          Sexo: c?.Sex,
+          'Nome da Mãe': c?.MotherName,
+          Endereço: [c?.AddressLine, c?.AddressLine2, c?.HouseNumber].filter(Boolean).join(', '),
+          Bairro: c?.Neighborhood,
+          'Município / UF': c?.Municipality && c?.State ? `${c.Municipality} — ${c.State}` : c?.Municipality,
+          CEP: c?.CEP,
+          Email: c?.Email,
+          'Telefone 1': c?.Phone1,
+          'Telefone 2': c?.Phone2,
           _sep_ENEM: true,
           'Inscrição ENEM': reg?.EnrollmentID,
           Opção: reg?.Option,
           Classificação: reg?.Ranking,
-          'Nota Linguagens': reg?.LanguagesScore?.Value,
-          'Nota Humanas': reg?.HumanitiesScore?.Value,
-          'Nota Natureza': reg?.NaturalSciencesScore?.Value,
-          'Nota Matemática': reg?.MathematicsScore?.Value,
-          'Nota Redação': reg?.EssayScore?.Value,
-          'Nota Final': reg?.CompositeScore?.Value,
+          'Nota Linguagens': reg?.LanguagesScore,
+          'Nota Humanas': reg?.HumanitiesScore,
+          'Nota Natureza': reg?.NaturalSciencesScore,
+          'Nota Matemática': reg?.MathematicsScore,
+          'Nota Redação': reg?.EssayScore,
+          'Nota Final': reg?.CompositeScore,
           _sep_COURSE: true,
-          Turno: course.Period === 'morning' ? 'Matutino' : course.Period === 'evening' ? 'Noturno' : course.Period,
-          Cota: course.Quota,
-          Vagas: course.Seats,
+          Turno: course?.Period === 'morning' ? 'Matutino' : course?.Period === 'evening' ? 'Noturno' : course?.Period,
+          Cota: course?.Quota,
+          Vagas: course?.Seats,
           ...(call ? { Chamada: call.Number } : {}),
         });
       })

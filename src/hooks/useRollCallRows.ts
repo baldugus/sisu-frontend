@@ -21,12 +21,10 @@ export function useRollCallRows(callId: number) {
     setLoading(true);
     setError(null);
     try {
-      const appsRes = await FetchApplicationsByRollCall(callId);
-      const apps: any[] = appsRes?.data ?? [];
+      const apps = await FetchApplicationsByRollCall(callId) ?? [];
       const details = await Promise.all(apps.map((a) => FetchRegistration(a.ID)));
 
-      const mapped: (RowData | null)[] = details.map((res) => {
-        const d = res?.data;
+      const mapped: (RowData | null)[] = details.map((d) => {
         const reg = d?.Registration;
         const course = d?.Course;
         const candidate = reg?.Candidate;

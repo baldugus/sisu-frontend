@@ -15,7 +15,7 @@ import {
 } from '@/lib/backend';
 
 interface RollCall { ID: number; Number: number; Status: string }
-interface SelectionInfo { year: number; semester: number }
+interface SelectionInfo { year: number }
 
 const PERIODS = [
   { label: 'Matutino', value: 'morning' },
@@ -79,10 +79,10 @@ export default function Relatorios() {
   useEffect(() => {
     async function load() {
       const [callsRes, approvedRes] = await Promise.all([FetchRollCalls(), FetchApprovedSelection()]);
-      const raw: any[] = callsRes?.data ?? [];
+      const raw = callsRes ?? [];
       setCalls(raw.map((c) => ({ ID: c.ID, Number: c.Number, Status: c.Status?.toUpperCase?.() ?? 'DONE' })));
-      const sel = approvedRes?.data;
-      if (sel) setInfo({ year: sel.Year, semester: sel.Semester });
+      const sel = approvedRes;
+      if (sel) setInfo({ year: sel.Year });
       setLoading(false);
     }
     load();
@@ -161,8 +161,6 @@ export default function Relatorios() {
         {info && (
           <p className="text-muted-foreground text-sm mt-0.5">
             SISU <span className="font-mono font-bold text-foreground">{info.year}</span>
-            {' — '}
-            <span className="font-mono font-bold text-foreground">{info.semester}º semestre</span>
           </p>
         )}
       </div>

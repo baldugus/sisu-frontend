@@ -26,7 +26,7 @@ export interface RowData {
   Period: string;
   Quota: string;
   Status: string;
-  EnrollmentID?: number;
+  EnrollmentID?: string;
   Ranking?: number;
 }
 

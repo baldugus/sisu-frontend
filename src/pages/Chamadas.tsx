@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import {
   FetchRollCalls,
+  FetchSemesters,
   CreateRollCall,
   OpenRollCall,
   CloseRollCall,
@@ -114,8 +115,7 @@ export default function Chamadas() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await FetchRollCalls();
-      const raw: any[] = res?.data ?? [];
+      const raw = await FetchRollCalls() ?? [];
       setCalls(raw.map((c) => ({
         ID: c.ID,
         Number: c.Number,
@@ -141,6 +141,26 @@ export default function Chamadas() {
     }
   }
 
+  async function handleCreateRollCall() {
+    setBusy(true);
+    try {
+      const semesters = await FetchSemesters() ?? [];
+      // SemesterStatus serializes via MarshalText → runtime value is the string "open"
+      const openSemester = semesters.find((s) => (s.Status as unknown as string) === 'open');
+      if (!openSemester) {
+        toast.error('Nenhum semestre aberto encontrado.');
+        return;
+      }
+      await CreateRollCall(openSemester.ID);
+      await load();
+      toast.success('Nova chamada criada.');
+    } catch (e: any) {
+      toast.error(e?.message ?? 'Ocorreu um erro.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
   const hasOpenCall = calls.some((c) => c.Status === 'CALLING');
   const lastCall = calls[calls.length - 1];
 
@@ -157,7 +177,7 @@ export default function Chamadas() {
         <Button
           className="gap-2"
           disabled={busy || hasOpenCall}
-          onClick={() => act(CreateRollCall, 'Nova chamada criada.')}
+          onClick={handleCreateRollCall}
         >
           {busy ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
           Nova chamada

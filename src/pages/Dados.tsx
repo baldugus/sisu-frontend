@@ -39,7 +39,7 @@ import {
   Destroy,
 } from '@/lib/backend';
 
-interface SelectionInfo { year: number; semester: number }
+interface SelectionInfo { year: number }
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
@@ -115,13 +115,11 @@ interface ImportModalProps {
 
 function ImportModal({ type, open, onClose, approvedInfo, onSuccess }: ImportModalProps) {
   const [year, setYear] = useState('');
-  const [semester, setSemester] = useState('');
   const [filePath, setFilePath] = useState('');
   const [busy, setBusy] = useState(false);
 
   const isWaitlisted = type === 'waitlisted';
   const resolvedYear = isWaitlisted ? String(approvedInfo?.year ?? '') : year;
-  const resolvedSemester = isWaitlisted ? String(approvedInfo?.semester ?? '') : semester;
 
   async function pickFile() {
     const path = await OpenFileDialog('Selecionar CSV', '*.csv', 'CSV (*.csv)');
@@ -129,14 +127,13 @@ function ImportModal({ type, open, onClose, approvedInfo, onSuccess }: ImportMod
   }
 
   async function submit() {
-    if (!filePath || !resolvedYear || !resolvedSemester) {
+    if (!filePath || !resolvedYear) {
       toast.error('Preencha todos os campos antes de importar.');
       return;
     }
     setBusy(true);
     try {
       const y = Number(resolvedYear);
-      const s = Number(resolvedSemester);
       if (isWaitlisted) await LoadInterestedSelection(y, filePath);
       else await LoadApprovedSelection(y, filePath);
       toast.success('Dados importados com sucesso.');
@@ -162,31 +159,18 @@ function ImportModal({ type, open, onClose, approvedInfo, onSuccess }: ImportMod
           {isWaitlisted && approvedInfo ? (
             <div className="text-xs text-muted-foreground rounded-lg bg-muted px-3 py-2">
               Usando ano <span className="font-mono font-bold text-foreground">{approvedInfo.year}</span>{' '}
-              e semestre <span className="font-mono font-bold text-foreground">{approvedInfo.semester}º</span>{' '}
               da seleção de aprovados.
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label className="text-xs mb-1 block">Ano</Label>
-                <Input
-                  placeholder="2025"
-                  className="h-8 text-sm font-mono"
-                  value={year}
-                  onChange={(e) => setYear(e.target.value)}
-                  maxLength={4}
-                />
-              </div>
-              <div>
-                <Label className="text-xs mb-1 block">Semestre</Label>
-                <Input
-                  placeholder="1"
-                  className="h-8 text-sm font-mono"
-                  value={semester}
-                  onChange={(e) => setSemester(e.target.value)}
-                  maxLength={1}
-                />
-              </div>
+            <div>
+              <Label className="text-xs mb-1 block">Ano</Label>
+              <Input
+                placeholder="2025"
+                className="h-8 text-sm font-mono"
+                value={year}
+                onChange={(e) => setYear(e.target.value)}
+                maxLength={4}
+              />
             </div>
           )}
 
@@ -229,8 +213,8 @@ export default function Dados() {
 
   async function loadInfo() {
     const [a, w] = await Promise.all([FetchApprovedSelection(), FetchInterestedSelection()]);
-    setApprovedInfo(a?.data ? { year: a.data.Year, semester: a.data.Semester } : null);
-    setWaitlistedInfo(w?.data ? { year: w.data.Year, semester: w.data.Semester } : null);
+    setApprovedInfo(a ? { year: a.Year } : null);
+    setWaitlistedInfo(w ? { year: w.Year } : null);
   }
 
   useEffect(() => { loadInfo(); }, []);
@@ -274,7 +258,7 @@ export default function Dados() {
   ];
 
   function selectionLabel(info: SelectionInfo) {
-    return `${info.year} — ${info.semester}º semestre`;
+    return `${info.year}`;
   }
 
   return (

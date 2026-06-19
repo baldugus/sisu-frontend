@@ -12,7 +12,6 @@ import {
   Restore,
   SaveFileDialog,
 } from "@/lib/backend";
-import { wailsCall } from "../lib/wailsCall";
 import ApprovedImportModal from "./components/ApprovedImportModal";
 import InterestedImportModal from "./components/InterestedImportModal";
 import {
@@ -40,14 +39,14 @@ const DataManagementPage = () => {
 
   const checkDataExists = async () => {
     try {
-      const approvedRes = await FetchApprovedSelection();
-      setHasApprovedData(approvedRes.data != null);
+      const approved = await FetchApprovedSelection();
+      setHasApprovedData(approved != null);
     } catch {
       setHasApprovedData(false);
     }
     try {
-      const interestedRes = await FetchInterestedSelection();
-      setHasInterestedData(interestedRes.data != null);
+      const interested = await FetchInterestedSelection();
+      setHasInterestedData(interested != null);
     } catch {
       setHasInterestedData(false);
     }
@@ -59,8 +58,8 @@ const DataManagementPage = () => {
 
   const handleDeleteApproved = async () => {
     try {
-      const res = await wailsCall(DeleteApprovedSelection);
-      toast.success(res.msg || "Aprovados removidos com sucesso.");
+      await DeleteApprovedSelection();
+      toast.success("Aprovados removidos com sucesso.");
       setHasApprovedData(false);
     } catch (e: any) {
       toast.error(e?.message || "Falha ao remover aprovados.");
@@ -69,8 +68,8 @@ const DataManagementPage = () => {
 
   const handleDeleteInterested = async () => {
     try {
-      const res = await wailsCall(DeleteInterestedSelection);
-      toast.success(res.msg || "Em espera removidos com sucesso.");
+      await DeleteInterestedSelection();
+      toast.success("Em espera removidos com sucesso.");
       setHasInterestedData(false);
     } catch (e: any) {
       toast.error(e?.message || "Falha ao remover em espera.");
@@ -85,8 +84,8 @@ const DataManagementPage = () => {
         "Banco de dados (*.db, *.sqlite)"
       );
       if (!filePath) return;
-      const res = await wailsCall(Restore, filePath);
-      toast.success(res.msg || "Banco de dados restaurado com sucesso!");
+      await Restore(filePath);
+      toast.success("Banco de dados restaurado com sucesso!");
       checkDataExists();
     } catch (e: any) {
       toast.error(e?.message || "Falha ao restaurar banco de dados.");
@@ -102,8 +101,8 @@ const DataManagementPage = () => {
         "Banco de dados (*.db)"
       );
       if (!filePath) return;
-      const res = await wailsCall(Backup, filePath);
-      toast.success(res.msg || "Backup realizado com sucesso!");
+      await Backup(filePath);
+      toast.success("Backup realizado com sucesso!");
     } catch (e: any) {
       toast.error(e?.message || "Falha ao realizar backup.");
     }
@@ -118,8 +117,8 @@ const DataManagementPage = () => {
         "CSV (*.csv)"
       );
       if (!filePath) return;
-      const res = await wailsCall(ExportCSV, filePath);
-      toast.success(res.msg || "CSV exportado com sucesso!");
+      await ExportCSV(filePath);
+      toast.success("CSV exportado com sucesso!");
     } catch (e: any) {
       toast.error(e?.message || "Falha ao exportar CSV.");
     }

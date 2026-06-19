@@ -203,7 +203,6 @@ export const approvedSelection = {
   Name: "SISU 2025/1 — Convocados",
   Kind: "approved",
   Year: 2025,
-  Semester: 1,
   Institution: "UFBA",
   Degree: "Bacharelado em Ciência da Computação",
 };
@@ -213,11 +212,11 @@ export const waitlistSelection = {
   Name: "SISU 2025/1 — Lista de Espera",
   Kind: "waitlist",
   Year: 2025,
-  Semester: 1,
   Institution: "UFBA",
   Degree: "Bacharelado em Ciência da Computação",
 };
 
 export const mockSemesters = [
-  { ID: 1, Year: 2025, Number: 1, Status: 0 },
+  // SemesterStatus serializes via MarshalText → runtime value is the string "open"/"closed"
+  { ID: 1, Year: 2025, Number: 1, Status: "open" },
 ];

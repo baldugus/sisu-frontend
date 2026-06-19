@@ -12,7 +12,6 @@ import {
 
 interface SelectionInfo {
   year: number;
-  semester: number;
   totalApproved: number;
   totalWaitlisted: number;
 }
@@ -115,25 +114,24 @@ export default function Painel() {
           FetchRollCalls(),
         ]);
 
-        const approved = approvedRes?.data;
-        const waitlisted = waitlistRes?.data;
+        const approved = approvedRes;
+        const waitlisted = waitlistRes;
 
         if (!approved) {
           setInfo(null);
         } else {
-          const [approvedRegsRes, waitlistRegsRes] = await Promise.all([
+          const [approvedRegs, waitlistRegs] = await Promise.all([
             FetchRegistrationsBySelectionID(approved.ID),
-            waitlisted ? FetchRegistrationsBySelectionID(waitlisted.ID) : Promise.resolve({ data: [] }),
+            waitlisted ? FetchRegistrationsBySelectionID(waitlisted.ID) : Promise.resolve([]),
           ]);
           setInfo({
             year: approved.Year,
-            semester: approved.Semester,
-            totalApproved: approvedRegsRes?.data?.length ?? 0,
-            totalWaitlisted: waitlistRegsRes?.data?.length ?? 0,
+            totalApproved: approvedRegs?.length ?? 0,
+            totalWaitlisted: waitlistRegs?.length ?? 0,
           });
         }
 
-        const rawCalls: any[] = callsRes?.data ?? [];
+        const rawCalls = callsRes ?? [];
         setCalls(
           rawCalls.map((c) => ({
             ID: c.ID,
@@ -186,8 +184,6 @@ export default function Painel() {
         <p className="text-muted-foreground text-sm mt-0.5">
           SISU{' '}
           <span className="font-mono font-bold text-foreground">{info.year}</span>
-          {' — '}
-          <span className="font-mono font-bold text-foreground">{info.semester}º semestre</span>
         </p>
       </div>
 

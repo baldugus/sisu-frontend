@@ -17,16 +17,14 @@ async function loadRowsForSelection(
   getSelection: () => Promise<any>,
   defaultStatus: string
 ): Promise<RowData[]> {
-  const selRes = await getSelection();
-  if (!selRes?.data) return [];
+  const sel = await getSelection();
+  if (!sel) return [];
 
-  const regsRes = await FetchRegistrationsBySelectionID(selRes.data.ID);
-  const regs: any[] = regsRes?.data ?? [];
+  const regs = await FetchRegistrationsBySelectionID(sel.ID) ?? [];
 
   const details = await Promise.all(regs.map((r) => FetchRegistration(r.ID)));
 
-  const mapped: (RowData | null)[] = details.map((res) => {
-    const d = res?.data;
+  const mapped: (RowData | null)[] = details.map((d) => {
     const reg = d?.Registration;
     const course = d?.Course;
     const candidate = reg?.Candidate;
