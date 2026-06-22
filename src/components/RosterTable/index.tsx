@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { getStatus, STATUSES } from '@/lib/status';
 import { RegistrationDialog } from './RegistrationDialog';
@@ -78,29 +79,7 @@ const PERIOD_OPTIONS = [
   { label: 'Noturno', value: 'Noturno' as const },
 ] as { label: string; value: string }[];
 
-const QUOTA_OPTIONS = [
-  { label: 'Todas as cotas', value: '' },
-  { label: 'AC', value: 'Ampla concorrência' },
-  {
-    label: 'C1',
-    value:
-      'Candidatos Negros ou Indígenas com comprovação de carência socioeconômica',
-  },
-  {
-    label: 'C2',
-    value:
-      'Candidatos com deficiência ou filhos de policiais militares, bombeiros militares, inspetores de segurança e administração penitenciária, mortos ou incapacitados em razão do serviço, com comprovação de carência socioeconômica',
-  },
-  {
-    label: 'C3',
-    value:
-      'Candidatos que tenham cursado na rede pública os últimos quatro anos do ensino fundamental e todo o ensino médio e com comprovação de carência socioeconômica',
-  },
-];
-
-const QUOTA_LABEL: Record<string, string> = Object.fromEntries(
-  QUOTA_OPTIONS.slice(1).map((o) => [o.value, o.label])
-);
+const QUOTA_ALL = '__all__';
 
 const STATUS_OPTIONS = [
   { label: 'Todos os status', value: '' },
@@ -134,6 +113,12 @@ export function RosterTable({
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogRow, setDialogRow] = useState<RowData | null>(null);
+
+  const quotaOptions = useMemo(() => {
+    const set = new Set<string>();
+    for (const r of rows) if (r.Quota) set.add(r.Quota);
+    return Array.from(set).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+  }, [rows]);
 
   const filtered = useMemo(() => {
     let out = rows;
@@ -255,9 +240,34 @@ export function RosterTable({
         </div>
 
         {/* Filter pills */}
-        <div className="flex flex-wrap gap-y-1.5 gap-x-4">
+        <div className="flex flex-wrap items-center gap-y-1.5 gap-x-4">
           <FilterPills options={PERIOD_OPTIONS} value={filterPeriod} onChange={setFilterPeriod} />
-          <FilterPills options={QUOTA_OPTIONS} value={filterQuota} onChange={setFilterQuota} />
+
+          <Select
+            value={filterQuota || QUOTA_ALL}
+            onValueChange={(v) => setFilterQuota(v === QUOTA_ALL ? '' : v)}
+          >
+            <SelectTrigger className="h-7 text-xs w-[220px]">
+              <SelectValue placeholder="Todas as cotas">
+                {filterQuota || 'Todas as cotas'}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent className="max-w-sm">
+              <SelectItem value={QUOTA_ALL} className="text-xs">
+                Todas as cotas
+              </SelectItem>
+              {quotaOptions.map((q) => (
+                <SelectItem
+                  key={q}
+                  value={q}
+                  className="items-start whitespace-normal py-1.5 text-xs"
+                >
+                  <span className="line-clamp-2">{q}</span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
           <FilterPills options={STATUS_OPTIONS} value={filterStatus} onChange={setFilterStatus as any} />
         </div>
       </div>
@@ -354,9 +364,21 @@ export function RosterTable({
                     <td className="px-2 py-2.5 font-mono text-xs text-muted-foreground">{row.CPF}</td>
                     <td className="px-2 py-2.5 text-sm text-muted-foreground">{row.Period}</td>
                     <td className="px-2 py-2.5">
-                      <span className="font-mono text-xs font-bold text-foreground">
-                        {QUOTA_LABEL[row.Quota] ?? row.Quota}
-                      </span>
+                      {row.Quota ? (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span
+                              className="block max-w-[220px] truncate text-xs text-foreground cursor-default"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              {row.Quota}
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-sm">{row.Quota}</TooltipContent>
+                        </Tooltip>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
                     </td>
                     <td className="px-2 py-2.5">
                       <span
