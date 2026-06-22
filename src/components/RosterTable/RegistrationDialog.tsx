@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -33,47 +33,93 @@ interface RegistrationDialogProps {
   onStatusChanged: () => void;
 }
 
-function Field({ label, value, mono }: { label: string; value?: any; mono?: boolean }) {
+// ENEM scores arrive pre-formatted as pt-BR strings (e.g. "655,16"). Parsed
+// only to size the magnitude bars below — display always uses the raw string.
+const SCORE_MAX = 1000;
+function parseScore(value?: string): number | null {
   if (value == null || value === '') return null;
+  const n = Number(value.replace(/\./g, '').replace(',', '.'));
+  return Number.isFinite(n) ? n : null;
+}
+
+function StatusPill({ status }: { status: string }) {
+  const def = getStatus(status);
   return (
-    <div className="flex gap-2 py-1.5 border-b border-border last:border-0">
-      <span className="text-xs text-muted-foreground w-36 shrink-0">{label}</span>
-      <span className={cn('text-xs text-foreground', mono && 'font-mono')}>{value}</span>
-    </div>
+    <span
+      className={cn(
+        'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium shrink-0',
+        def.badgeBg,
+        def.textColor
+      )}
+    >
+      <span className={cn('w-1.5 h-1.5 rounded-full', def.color)} />
+      {def.label}
+    </span>
   );
 }
 
-function ScoreBox({
-  label,
-  value,
-  emphasis,
-  className,
-}: {
-  label: string;
-  value?: any;
-  emphasis?: boolean;
-  className?: string;
-}) {
-  if (value == null || value === '') return null;
+function Stat({
+  label, value, emphasis,
+}: { label: string; value?: string; emphasis?: boolean }) {
   return (
-    <div
-      className={cn(
-        'rounded-lg border p-2.5 flex flex-col gap-0.5',
-        emphasis ? 'border-primary bg-accent/50' : 'border-border bg-card',
-        className
-      )}
-    >
+    <div className="flex flex-col gap-0.5 px-3 py-1 first:pl-0 last:pr-0">
       <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">
         {label}
       </span>
       <span
         className={cn(
-          'font-mono font-bold tabular-nums text-base text-foreground',
+          'font-mono font-bold tabular-nums text-xl text-foreground',
           emphasis && 'text-primary'
         )}
       >
+        {value ?? '—'}
+      </span>
+    </div>
+  );
+}
+
+function Field({
+  label, value, mono, full,
+}: { label: string; value?: any; mono?: boolean; full?: boolean }) {
+  if (value == null || value === '') return null;
+  return (
+    <div className={cn('flex flex-col gap-0.5 min-w-0', full && 'col-span-2')}>
+      <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">
+        {label}
+      </span>
+      <span className={cn('text-sm text-foreground truncate', mono && 'font-mono')}>
         {value}
       </span>
+    </div>
+  );
+}
+
+function ScoreBar({ label, value }: { label: string; value?: string }) {
+  const score = parseScore(value);
+  const pct = score == null ? 0 : Math.min(100, Math.max(0, (score / SCORE_MAX) * 100));
+  return (
+    <div className="flex items-center gap-3">
+      <span className="text-xs text-muted-foreground w-24 shrink-0">{label}</span>
+      <div className="flex-1 h-2 rounded-full bg-border overflow-hidden">
+        <div
+          className="h-full rounded-full bg-primary transition-[width] motion-reduce:transition-none"
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+      <span className="font-mono font-bold tabular-nums text-xs text-foreground w-16 text-right shrink-0">
+        {value ?? '—'}
+      </span>
+    </div>
+  );
+}
+
+function Section({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="mb-4 last:mb-0">
+      <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold mb-2">
+        {label}
+      </p>
+      {children}
     </div>
   );
 }
@@ -91,12 +137,7 @@ const MUTABLE_STATUSES = STATUSES.filter(
 );
 
 export function RegistrationDialog({
-  open,
-  onOpenChange,
-  id,
-  initialStatus,
-  hasSelector,
-  onStatusChanged,
+  open, onOpenChange, id, initialStatus, hasSelector, onStatusChanged,
 }: RegistrationDialogProps) {
   const [detail, setDetail] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(false);
@@ -129,17 +170,15 @@ export function RegistrationDialog({
           Email: c?.Email,
           'Telefone 1': c?.Phone1,
           'Telefone 2': c?.Phone2,
-          _sep_ENEM: true,
           'Inscrição ENEM': reg?.EnrollmentID,
-          Opção: reg?.Option,
-          Classificação: reg?.Ranking,
+          Opção: reg?.Option != null ? `${reg.Option}ª` : undefined,
+          Classificação: reg?.Ranking != null ? `${reg.Ranking}º` : undefined,
           'Nota Linguagens': reg?.LanguagesScore,
           'Nota Humanas': reg?.HumanitiesScore,
           'Nota Natureza': reg?.NaturalSciencesScore,
           'Nota Matemática': reg?.MathematicsScore,
           'Nota Redação': reg?.EssayScore,
           'Nota Final': reg?.CompositeScore,
-          _sep_COURSE: true,
           Turno: course?.Period === 'morning' ? 'Matutino' : course?.Period === 'evening' ? 'Noturno' : course?.Period,
           Cota: course?.Quota,
           Vagas: course?.Seats,
@@ -162,72 +201,101 @@ export function RegistrationDialog({
     }
   }
 
-  const statusDef = getStatus(pendingStatus);
-  const enemSepIndex = Object.keys(detail).indexOf('_sep_ENEM');
-  const personalFieldCount = enemSepIndex === -1 ? Object.keys(detail).length : enemSepIndex;
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg max-h-[80vh] flex flex-col gap-0 p-0 overflow-hidden">
-        <DialogHeader className="px-6 py-4 border-b border-border shrink-0">
-          <DialogTitle className="font-heading text-lg font-bold truncate">
-            {loading ? '...' : (detail['Nome'] ?? 'Candidato')}
-          </DialogTitle>
+      <DialogContent className="max-w-xl max-h-[85vh] flex flex-col gap-0 p-0 overflow-hidden">
+        <DialogHeader className="sr-only">
+          <DialogTitle>{loading ? 'Carregando candidato' : (detail['Nome'] ?? 'Candidato')}</DialogTitle>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto px-6 py-4">
-          {loading ? (
-            <div className="flex items-center justify-center h-24 gap-2 text-muted-foreground">
-              <Loader2 className="size-4 animate-spin" />
-              <span className="text-sm">Carregando...</span>
-            </div>
-          ) : (
-            <>
-              {/* Personal data */}
-              <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold mb-1">
-                Dados Pessoais
-              </p>
-              {Object.entries(detail)
-                .filter(([k]) => !k.startsWith('_sep_'))
-                .slice(0, personalFieldCount)
-                .map(([k, v]) => <Field key={k} label={k} value={v} mono={k === 'CPF' || k === 'CEP'} />)}
-
-              <Separator className="my-3" />
-              <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold mb-1">
-                ENEM / Notas
-              </p>
-              {['Inscrição ENEM', 'Opção', 'Classificação'].map((k) =>
-                detail[k] != null ? <Field key={k} label={k} value={detail[k]} mono /> : null
-              )}
-              <div className="grid grid-cols-3 gap-2 mt-2">
-                {SCORE_FIELDS.map(({ key, label }) => (
-                  <ScoreBox key={key} label={label} value={detail[key]} />
-                ))}
-                <ScoreBox
-                  label="Nota Final"
-                  value={detail['Nota Final']}
-                  emphasis
-                  className="col-span-3"
-                />
+        {loading ? (
+          <div className="flex items-center justify-center h-40 gap-2 text-muted-foreground">
+            <Loader2 className="size-4 animate-spin" />
+            <span className="text-sm">Carregando...</span>
+          </div>
+        ) : (
+          <>
+            {/* Persistent identity + headline stats — does not scroll */}
+            <div className="px-6 py-5 border-b border-border shrink-0">
+              <div className="flex items-start justify-between gap-3 pr-8">
+                <div className="min-w-0">
+                  <h2 className="font-heading text-xl font-bold text-foreground truncate">
+                    {detail['Nome']}
+                  </h2>
+                  {detail['Nome Social'] && (
+                    <p className="text-xs text-muted-foreground truncate">{detail['Nome Social']}</p>
+                  )}
+                </div>
+                <StatusPill status={pendingStatus} />
               </div>
-
-              <Separator className="my-3" />
-              <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold mb-1">
-                Curso
-              </p>
-              {['Turno', 'Cota', 'Vagas', 'Chamada'].map((k) =>
-                detail[k] != null ? <Field key={k} label={k} value={detail[k]} /> : null
+              {detail['CPF'] && (
+                <p className="text-xs font-mono text-muted-foreground mt-1">CPF {detail['CPF']}</p>
               )}
-            </>
-          )}
-        </div>
+
+              <div className="grid grid-cols-3 divide-x divide-border rounded-xl bg-accent/50 p-3 mt-4">
+                <Stat label="Nota Final" value={detail['Nota Final']} emphasis />
+                <Stat label="Classificação" value={detail['Classificação']} />
+                <Stat label="Opção" value={detail['Opção']} />
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto px-6 py-4">
+              <Section label="Desempenho por área">
+                <div className="flex flex-col gap-1.5">
+                  {SCORE_FIELDS.map(({ key, label }) => (
+                    <ScoreBar key={key} label={label} value={detail[key]} />
+                  ))}
+                </div>
+              </Section>
+
+              <Separator className="mb-4" />
+
+              <Section label="Documento">
+                <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+                  <Field label="Data de Nascimento" value={detail['Data de Nascimento']} />
+                  <Field label="Sexo" value={detail['Sexo']} />
+                  <Field label="Nome da Mãe" value={detail['Nome da Mãe']} full />
+                  <Field label="Inscrição ENEM" value={detail['Inscrição ENEM']} mono full />
+                </div>
+              </Section>
+
+              <Separator className="mb-4" />
+
+              <Section label="Contato">
+                <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+                  <Field label="Email" value={detail['Email']} full />
+                  <Field label="Telefone 1" value={detail['Telefone 1']} />
+                  <Field label="Telefone 2" value={detail['Telefone 2']} />
+                </div>
+              </Section>
+
+              <Separator className="mb-4" />
+
+              <Section label="Endereço">
+                <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+                  <Field label="Endereço" value={detail['Endereço']} full />
+                  <Field label="Bairro" value={detail['Bairro']} />
+                  <Field label="Município / UF" value={detail['Município / UF']} />
+                  <Field label="CEP" value={detail['CEP']} mono />
+                </div>
+              </Section>
+
+              <Separator className="mb-4" />
+
+              <Section label="Curso">
+                <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+                  <Field label="Turno" value={detail['Turno']} />
+                  <Field label="Cota" value={detail['Cota']} />
+                  <Field label="Vagas" value={detail['Vagas']} />
+                  <Field label="Chamada" value={detail['Chamada']} />
+                </div>
+              </Section>
+            </div>
+          </>
+        )}
 
         {hasSelector && !loading && (
           <div className="px-6 py-4 border-t border-border flex items-center gap-3 shrink-0">
-            <div
-              className="w-2.5 h-2.5 rounded-full shrink-0"
-              style={{ background: `var(--status-${pendingStatus.toLowerCase()}, #888)` }}
-            />
             <Select value={pendingStatus} onValueChange={setPendingStatus}>
               <SelectTrigger className="h-8 text-xs flex-1">
                 <SelectValue />
@@ -252,17 +320,8 @@ export function RegistrationDialog({
         )}
 
         {!hasSelector && (
-          <div className="px-6 py-4 border-t border-border flex items-center gap-2 shrink-0">
-            <div
-              className={cn('w-2.5 h-2.5 rounded-full', statusDef.color)}
-            />
-            <span className="text-xs text-muted-foreground">{statusDef.label}</span>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="ml-auto h-8"
-              onClick={() => onOpenChange(false)}
-            >
+          <div className="px-6 py-4 border-t border-border flex items-center justify-end shrink-0">
+            <Button variant="ghost" size="sm" onClick={() => onOpenChange(false)}>
               Fechar
             </Button>
           </div>
