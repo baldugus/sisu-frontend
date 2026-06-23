@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
-import { Search, ChevronsUpDown, Loader2, ArrowUpDown } from 'lucide-react';
+import { Search, ChevronsUpDown, Loader2, ArrowUpDown, Copy } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -13,7 +13,10 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { getStatus, STATUSES } from '@/lib/status';
+import { copyText } from '@/lib/clipboard';
+import { toast } from 'sonner';
 import { RegistrationDialog } from './RegistrationDialog';
+import { CopyEmailButton } from './CopyEmailButton';
 import {
   ClearApplicationStatus,
   AbsentApplication,
@@ -24,6 +27,7 @@ export interface RowData {
   ID: number;
   Name: string;
   CPF: string;
+  Email?: string;
   Period: string;
   Quota: string;
   Status: string;
@@ -40,6 +44,7 @@ interface RosterTableProps {
   showKindFilter?: boolean;
   kind?: 'approved' | 'waitlisted';
   onKindChange?: (kind: 'approved' | 'waitlisted') => void;
+  showContact?: boolean;
 }
 
 type SortKey = 'Ranking' | 'Name';
@@ -99,6 +104,7 @@ export function RosterTable({
   showKindFilter = false,
   kind,
   onKindChange,
+  showContact = false,
 }: RosterTableProps) {
   const [search, setSearch] = useState('');
   const [filterPeriod, setFilterPeriod] = useState('');
@@ -147,6 +153,38 @@ export function RosterTable({
     },
     [sortKey]
   );
+
+  const colCount = 6 + (hasSelector ? 1 : 0) + (showContact ? 1 : 0);
+
+  const filteredEmails = useMemo(() => {
+    const seen = new Set<string>();
+    const out: string[] = [];
+    for (const r of filtered) {
+      const email = r.Email?.trim();
+      if (!email) continue;
+      const key = email.toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push(email);
+    }
+    return out;
+  }, [filtered]);
+
+  async function copyAllEmails() {
+    if (filteredEmails.length === 0) {
+      toast.error('Nenhum e-mail para copiar');
+      return;
+    }
+    const ok = await copyText(filteredEmails.join(', '));
+    if (!ok) {
+      toast.error('Não foi possível copiar os e-mails');
+      return;
+    }
+    const skipped = filtered.length - filteredEmails.length;
+    const n = filteredEmails.length;
+    const base = `${n} e-mail${n !== 1 ? 's' : ''} copiado${n !== 1 ? 's' : ''}`;
+    toast.success(skipped > 0 ? `${base} (${skipped} sem e-mail)` : base);
+  }
 
   const allSelected = filtered.length > 0 && filtered.every((r) => selectedIds.has(r.ID));
   const someSelected = selectedIds.size > 0;
@@ -300,6 +338,11 @@ export function RosterTable({
               <th className="px-2 py-3 text-left font-semibold text-xs uppercase tracking-wide text-muted-foreground">
                 CPF
               </th>
+              {showContact && (
+                <th className="px-2 py-3 text-left font-semibold text-xs uppercase tracking-wide text-muted-foreground">
+                  E-mail
+                </th>
+              )}
               <th className="px-2 py-3 text-left font-semibold text-xs uppercase tracking-wide text-muted-foreground">
                 Turno
               </th>
@@ -311,7 +354,7 @@ export function RosterTable({
               </th>
             </tr>
             <tr>
-              <td colSpan={hasSelector ? 7 : 6} className="p-0">
+              <td colSpan={colCount} className="p-0">
                 <div className="h-px bg-border" />
               </td>
             </tr>
@@ -319,7 +362,7 @@ export function RosterTable({
           <tbody>
             {loading && (
               <tr>
-                <td colSpan={hasSelector ? 7 : 6} className="py-16 text-center text-muted-foreground">
+                <td colSpan={colCount} className="py-16 text-center text-muted-foreground">
                   <div className="flex items-center justify-center gap-2">
                     <Loader2 className="size-4 animate-spin" />
                     <span className="text-sm">Carregando…</span>
@@ -329,7 +372,7 @@ export function RosterTable({
             )}
             {!loading && filtered.length === 0 && (
               <tr>
-                <td colSpan={hasSelector ? 7 : 6} className="py-16 text-center text-muted-foreground text-sm">
+                <td colSpan={colCount} className="py-16 text-center text-muted-foreground text-sm">
                   {emptyMessage}
                 </td>
               </tr>
@@ -362,6 +405,28 @@ export function RosterTable({
                     </td>
                     <td className="px-2 py-2.5 font-medium max-w-[200px] truncate">{row.Name}</td>
                     <td className="px-2 py-2.5 font-mono text-xs text-muted-foreground">{row.CPF}</td>
+                    {showContact && (
+                      <td className="px-2 py-2.5">
+                        {row.Email ? (
+                          <div className="flex items-center gap-1">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span
+                                  className="block max-w-[200px] truncate font-mono text-xs text-foreground cursor-default"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  {row.Email}
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent className="max-w-sm">{row.Email}</TooltipContent>
+                            </Tooltip>
+                            <CopyEmailButton email={row.Email} />
+                          </div>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">—</span>
+                        )}
+                      </td>
+                    )}
                     <td className="px-2 py-2.5 text-sm text-muted-foreground">{row.Period}</td>
                     <td className="px-2 py-2.5">
                       {row.Quota ? (
@@ -433,6 +498,18 @@ export function RosterTable({
               Aplicar
             </Button>
           </div>
+        )}
+
+        {showContact && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 text-xs"
+            onClick={copyAllEmails}
+          >
+            <Copy className="size-3.5" />
+            Copiar e-mails
+          </Button>
         )}
       </div>
 

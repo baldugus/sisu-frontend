@@ -2,8 +2,7 @@ export type StatusValue =
   | 'APPROVED'
   | 'ABSENT'
   | 'ENROLLED'
-  | 'WAITLISTED'
-  | 'WAITING';
+  | 'WAITLISTED';
 
 export interface StatusDef {
   value: StatusValue;
@@ -41,13 +40,6 @@ export const STATUSES: StatusDef[] = [
     color: 'bg-[#3B82C4]',
     textColor: 'text-[#0D3B6B]',
     badgeBg: 'bg-[#EEF5FF]',
-  },
-  {
-    value: 'WAITING',
-    label: 'Esperando...',
-    color: 'bg-[#3FB6C4]',
-    textColor: 'text-[#0A4F58]',
-    badgeBg: 'bg-[#ECFBFD]',
   },
 ];
 

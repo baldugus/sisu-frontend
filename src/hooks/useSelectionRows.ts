@@ -33,6 +33,7 @@ async function loadRowsForSelection(
       ID: reg.ID,
       Name: candidate?.Name ?? '',
       CPF: candidate?.CPF ?? '',
+      Email: candidate?.Email ?? '',
       Period: periodLabel(course?.Period ?? ''),
       Quota: course?.Quota ?? '',
       Status: reg.Status?.toUpperCase() ?? defaultStatus,

@@ -23,6 +23,7 @@ export default function Candidatos() {
           showKindFilter
           kind={kind}
           onKindChange={setKind}
+          showContact
           emptyMessage="Nenhum candidato nesta seleção."
         />
       </div>
