@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { formatCpf } from '@/lib/format';
 import { getStatus, STATUSES } from '@/lib/status';
 import {
   FetchRegistration,
@@ -62,8 +63,8 @@ function Stat({
   label, value, emphasis,
 }: { label: string; value?: string; emphasis?: boolean }) {
   return (
-    <div className="flex flex-col gap-0.5 px-3 py-1 first:pl-0 last:pr-0">
-      <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">
+    <div className="flex flex-col gap-0.5 px-3 py-1 min-w-0 first:pl-0 last:pr-0">
+      <span className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold leading-tight">
         {label}
       </span>
       <span
@@ -159,7 +160,7 @@ export function RegistrationDialog({
         setDetail({
           Nome: c?.Name,
           'Nome Social': c?.SocialName,
-          CPF: c?.CPF,
+          CPF: formatCpf(c?.CPF),
           'Data de Nascimento': c?.BirthDate,
           Sexo: c?.Sex,
           'Nome da Mãe': c?.MotherName,
@@ -217,17 +218,18 @@ export function RegistrationDialog({
           <>
             {/* Persistent identity + headline stats — does not scroll */}
             <div className="px-6 py-5 border-b border-border shrink-0">
-              <div className="flex items-start justify-between gap-3 pr-8">
-                <div className="min-w-0">
-                  <h2 className="font-heading text-xl font-bold text-foreground truncate">
-                    {detail['Nome']}
-                  </h2>
-                  {detail['Nome Social'] && (
-                    <p className="text-xs text-muted-foreground truncate">{detail['Nome Social']}</p>
-                  )}
-                </div>
+              <div className="flex items-center pr-8">
                 <StatusPill status={pendingStatus} />
               </div>
+              <h2
+                title={detail['Nome']}
+                className="font-heading text-xl font-bold text-foreground break-words line-clamp-2 mt-2"
+              >
+                {detail['Nome']}
+              </h2>
+              {detail['Nome Social'] && (
+                <p className="text-xs text-muted-foreground break-words">{detail['Nome Social']}</p>
+              )}
               {detail['CPF'] && (
                 <p className="text-xs font-mono text-muted-foreground mt-1">CPF {detail['CPF']}</p>
               )}
@@ -273,7 +275,7 @@ export function RegistrationDialog({
 
               <Section label="Endereço">
                 <div className="grid grid-cols-2 gap-x-6 gap-y-3">
-                  <Field label="Endereço" value={detail['Endereço']} full />
+                  <Field label="Logradouro" value={detail['Endereço']} full />
                   <Field label="Bairro" value={detail['Bairro']} />
                   <Field label="Município / UF" value={detail['Município / UF']} />
                   <Field label="CEP" value={detail['CEP']} mono />
